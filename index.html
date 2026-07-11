@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hari Kita 🩷</title>
+
+  <!-- Google Fonts: handwriting + friendly -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Alpine.js for reactivity -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Firebase (modular) -->
+  <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"></script>
+  <!-- confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div x-data="app()" x-init="init()" class="app-wrap">
+
+    <!-- ====== HERO / HEADER ====== -->
+    <header class="header">
+      <div class="anniversary-badge" x-show="anniversaryDays !== null">
+        <span class="heart">💗</span>
+        <span x-text="anniversaryDays + ' hari bersama'"></span>
+      </div>
+
+      <!-- ====== COUNTDOWN MAGANG ====== -->
+      <div class="countdown-card" x-show="internship && !internship.done">
+        <span class="countdown-heart">💪</span>
+        <div class="countdown-body">
+          <span class="countdown-label">Sisa magang cuma</span>
+          <span class="countdown-number" x-text="internship.remaining"></span>
+          <span class="countdown-label">hari kerja lagi!</span>
+        </div>
+        <span class="countdown-sub">dari <span x-text="internship.total"></span> total hari</span>
+      </div>
+      <div class="countdown-card done" x-show="internship && internship.done">
+        🎉 <span>Magang selesai! Selamattt!</span> 🎉
+      </div>
+
+      <h1 class="title">☀️ Hari Kita</h1>
+      <p class="subtitle" x-text="dateStr + ' — ' + dayName"></p>
+      <div class="header-actions">
+        <button class="btn-date" x-show="todayStr !== selectedDate" @click="goToday()">⬅ Kembali ke hari ini</button>
+        <input type="date" x-model="selectedDate" @change="loadDay()" class="date-picker" />
+      </div>
+    </header>
+
+    <!-- ====== DATE NAV (prev / next day) ====== -->
+    <nav class="day-nav">
+      <button class="btn-nav" @click="shiftDay(-1)">‹ Kemarin</button>
+      <span class="day-nav-label" x-text="dayLabel"></span>
+      <button class="btn-nav" @click="shiftDay(1)">Besok ›</button>
+    </nav>
+
+    <!-- ====== LOADING ====== -->
+    <div class="loading" x-show="loading">
+      <span class="loader-heart">💗💗💗</span>
+      <p>Menyiapkan hari ini...</p>
+    </div>
+
+    <!-- ====== MAIN CONTENT (2 columns on desktop) ====== -->
+    <template x-if="!loading">
+      <div class="two-col">
+
+        <!-- ====== LEFT: CHECKLIST ====== -->
+        <section class="card card-checklist">
+          <div class="card-header checklist-head">
+            <h2>📋 Barang & Persiapan</h2>
+            <span class="badge" x-text="doneCount + '/' + checklist.length"></span>
+          </div>
+
+          <!-- progress bar -->
+          <div class="progress-track">
+            <div class="progress-fill" :style="'width:' + (checklist.length ? (doneCount/checklist.length*100) : 0) + '%'"></div>
+          </div>
+
+          <!-- items -->
+          <ul class="list-items">
+            <template x-for="(item, idx) in checklist" :key="item.id">
+              <li class="item-row" :class="{ done: item.done }">
+                <label class="item-label">
+                  <input type="checkbox" :checked="item.done" @change="toggleItem(idx)" class="item-check" />
+                  <span class="check-fake"></span>
+                  <span class="item-text" x-text="item.text"></span>
+                </label>
+                <button class="btn-del" @click="deleteItem(idx)" title="Hapus">✕</button>
+              </li>
+            </template>
+          </ul>
+
+          <!-- add form -->
+          <form class="add-form" @submit.prevent="addItem">
+            <input type="text" x-model="newItem" placeholder="Tambah barang atau persiapan..." class="input-add" maxlength="200" />
+            <button class="btn-add" :disabled="!newItem.trim()">+</button>
+          </form>
+
+          <!-- empty state -->
+          <div class="empty-state" x-show="!checklist.length">
+            <p>✨ Belum ada barang nih.</p>
+            <p class="empty-hint">Ketik di atas lalu tambah!</p>
+          </div>
+        </section>
+
+        <!-- ====== RIGHT: SCHEDULE ====== -->
+        <section class="card card-schedule">
+          <div class="card-header">
+            <h2>⏰ Jadwal Kegiatan</h2>
+          </div>
+
+          <ul class="schedule-list">
+            <template x-for="(item, idx) in schedule" :key="item.id">
+              <li class="schedule-row" :class="{ past: item.past }">
+                <span class="sched-time" x-text="item.time"></span>
+                <span class="sched-dot"></span>
+                <div class="sched-body">
+                  <span class="sched-text" x-text="item.text"></span>
+                  <template x-if="item.note">
+                    <span class="sched-note" x-text="item.note"></span>
+                  </template>
+                </div>
+                <button class="btn-del" @click="deleteSchedule(idx)" title="Hapus">✕</button>
+              </li>
+            </template>
+          </ul>
+
+          <!-- add schedule -->
+          <form class="add-form schedule-form" @submit.prevent="addSchedule">
+            <input type="time" x-model="newSchedTime" class="input-time" required />
+            <input type="text" x-model="newSchedText" placeholder="Kegiatan..." class="input-add" maxlength="200" required />
+            <input type="text" x-model="newSchedNote" placeholder="Catatan (opsional)" class="input-note" maxlength="200" />
+            <button class="btn-add" :disabled="!newSchedText.trim() || !newSchedTime">+</button>
+          </form>
+
+          <!-- empty state -->
+          <div class="empty-state" x-show="!schedule.length">
+            <p>🕊️ Belum ada jadwal.</p>
+            <p class="small-hint">Tambah kegiatan hari ini!</p>
+          </div>
+        </section>
+
+      </div>
+    </template>
+
+    <!-- ====== QUOTE OF THE DAY ====== -->
+    <footer class="footer-quote">
+      <p x-text="dailyQuote"></p>
+    </footer>
+
+    <!-- ====== FOOTER ====== -->
+    <footer class="footer-credit">
+      <p>🩷 Dibuat khusus untuk kamu &mdash; my love</p>
+      <p class="tiny">(setiap hari adalah petualangan bersama)</p>
+    </footer>
+
+  </div>
+
+  <!-- ====== Firebase (CDN non-ESM — compatible with Alpine.js) ====== -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
+
+  <!-- ====== Firebase init config ====== -->
+  <script>
+    // 🔥 GANTI dengan config dari Firebase Console kamu!
+    // Project Settings → General → Your apps → Firebase SDK snippet → Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqQCm6gV-jd5dyTKdc9BXmZKuzPPolbF8",
+      authDomain: "nata-s-daily.firebaseapp.com",
+      projectId: "nata-s-daily",
+      storageBucket: "nata-s-daily.firebasestorage.app",
+      messagingSenderId: "440088965598",
+      appId: "1:440088965598:web:98516f550c4ab985cded4f"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Anonymous auth — silent, tanpa form login
+    let firebaseReady = false;
+    function setReady() {
+      firebaseReady = true;
+      window.FIREBASE_READY = true;
+      window.FIREBASE_DB = db;
+      window.dispatchEvent(new CustomEvent('firebase-ready'));
+    }
+
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        console.log('✅ Firebase auth OK — uid:', user.uid);
+        setReady();
+      } else {
+        auth.signInAnonymously().catch(function(err) {
+          console.warn('⚠️ Auth gagal:', err.message);
+          setReady(); // tetap jalan read-only
+        });
+      }
+    });
+
+    // Bridge supaya app.js bisa pakai API v9-style (compat)
+    window.FirebaseHelpers = {
+      db: db,
+      auth: auth,
+      doc: function(database, collection, id) {
+        return database.collection(collection).doc(id);
+      },
+      getDoc: function(ref) {
+        return ref.get();
+      },
+      setDoc: function(ref, data, opts) {
+        return ref.set(data, opts || {});
+      },
+      onSnapshot: function(ref, callback) {
+        return ref.onSnapshot(callback);
+      },
+      serverTimestamp: function() {
+        return firebase.firestore.FieldValue.serverTimestamp();
+      }
+    };
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
