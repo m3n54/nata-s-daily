@@ -93,16 +93,16 @@ function app() {
     calculateAnniversary() {
       // Ganti dengan tanggal mulai hubungan kamu
       // Contoh: 1 Januari 2024 → 2024-01-01
-      const start = new Date('2024-01-01');
+      const start = new Date('2026-06-28');
       const now = new Date();
       const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
       return diffDays > 0 ? diffDays : null;
     },
 
     calculateInternshipCountdown() {
-      const start = new Date(2026, 6, 13);
-      const end   = new Date(2026, 7, 14);
-      const totalWorkingDays = 25;
+      const start = new Date(2026, 5, 22);   // 22 Juni 2026 (Senin)
+      const end   = new Date(2026, 7, 14);    // 14 Agustus 2026 (Jumat)
+      const totalWorkingDays = 40;
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
