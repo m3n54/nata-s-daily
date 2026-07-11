@@ -143,17 +143,24 @@ function app() {
 
       // Real-time listener
       this.unsubscribe = onSnapshot(docRef, (snap) => {
-        if (snap.exists()) {
+        if (snap && typeof snap.exists === 'function' && snap.exists()) {
           const data = snap.data();
           this.checklist = data.checklist || [];
           this.schedule = data.schedule || [];
           this.checkPastSchedules();
+        } else if (snap && typeof snap.exists === 'function') {
+          this.checklist = [];
+          this.schedule = [];
         } else {
+          console.warn('Firestore snapshot tidak valid, fallback ke mode offline');
           this.checklist = [];
           this.schedule = [];
         }
         this.loading = false;
         this.checkForConfetti();
+      }, (error) => {
+        console.error('Firestore error:', error);
+        this.loading = false;
       });
     },
 
