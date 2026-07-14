@@ -11,10 +11,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <!-- Alpine.js for reactivity -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <!-- Firebase (modular) -->
-  <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
-  <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
-  <script type="module" src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"></script>
   <!-- confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
   <link rel="stylesheet" href="style.css" />
@@ -48,7 +44,7 @@
       <p class="subtitle" x-text="dateStr + ' — ' + dayName"></p>
       <div class="header-actions">
         <button class="btn-date" x-show="todayStr !== selectedDate" @click="goToday()">⬅ Kembali ke hari ini</button>
-        <input type="date" x-model="selectedDate" @change="loadDay()" class="date-picker" />
+        <input type="date" x-model="selectedDate" @change="loadDay()" class="date-picker" name="selectedDate" id="selectedDate" />
       </div>
     </header>
 
@@ -97,7 +93,7 @@
 
           <!-- add form -->
           <form class="add-form" @submit.prevent="addItem">
-            <input type="text" x-model="newItem" placeholder="Tambah barang atau persiapan..." class="input-add" maxlength="200" />
+            <input type="text" x-model="newItem" placeholder="Tambah barang atau persiapan..." class="input-add" maxlength="200" name="newItem" id="newItem" />
             <button class="btn-add" :disabled="!newItem.trim()">+</button>
           </form>
 
@@ -132,9 +128,9 @@
 
           <!-- add schedule -->
           <form class="add-form schedule-form" @submit.prevent="addSchedule">
-            <input type="time" x-model="newSchedTime" class="input-time" required />
-            <input type="text" x-model="newSchedText" placeholder="Kegiatan..." class="input-add" maxlength="200" required />
-            <input type="text" x-model="newSchedNote" placeholder="Catatan (opsional)" class="input-note" maxlength="200" />
+            <input type="time" x-model="newSchedTime" class="input-time" required name="newSchedTime" id="newSchedTime" />
+            <input type="text" x-model="newSchedText" placeholder="Kegiatan..." class="input-add" maxlength="200" required name="newSchedText" id="newSchedText" />
+            <input type="text" x-model="newSchedNote" placeholder="Catatan (opsional)" class="input-note" maxlength="200" name="newSchedNote" id="newSchedNote" />
             <button class="btn-add" :disabled="!newSchedText.trim() || !newSchedTime">+</button>
           </form>
 
@@ -217,14 +213,16 @@
       setDoc: function(ref, data, opts) {
         return ref.set(data, opts || {});
       },
-      onSnapshot: function(ref, callback) {
-        return ref.onSnapshot(callback);
+      onSnapshot: function(ref, callback, onError) {
+        return ref.onSnapshot(callback, onError || function(err) {
+          console.error('Firestore snapshot error:', err);
+        });
       },
       serverTimestamp: function() {
         return firebase.firestore.FieldValue.serverTimestamp();
       }
     };
   </script>
-  <script src="app.js"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>

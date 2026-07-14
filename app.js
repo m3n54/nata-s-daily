@@ -37,6 +37,7 @@ function app() {
     dailyQuote: '',
     internship: null,
     unsubscribe: null,
+    _localUpdating: false, // flag cegah snapshot overwrite saat update lokal
 
     init() {
       console.log('App Alpine initialization...');
@@ -143,20 +144,30 @@ function app() {
 
       // Real-time listener
       this.unsubscribe = onSnapshot(docRef, (snap) => {
-        if (snap && typeof snap.exists === 'function' && snap.exists()) {
+        // Skip snapshot jika update lokal sedang berlangsung (cegah race condition)
+        if (this._localUpdating) return;
+
+        console.log('SNAP EXISTS VALUE:', snap?.exists);
+        if (snap && snap.exists) {
           const data = snap.data();
           this.checklist = data.checklist || [];
           this.schedule = data.schedule || [];
           this.checkPastSchedules();
-        } else if (snap && typeof snap.exists === 'function') {
-          this.checklist = [];
-          this.schedule = [];
+          this.loading = false;
+        } else if (snap) {
+          // Hanya reset data saat initial load, bukan saat snapshot "catch up"
+          if (this.loading) {
+            console.log('Inisialisasi data untuk tanggal:', this.selectedDate);
+            this.checklist = [];
+            this.schedule = [];
+          }
+          this.loading = false;
         } else {
-          console.warn('Firestore snapshot tidak valid, fallback ke mode offline');
+          console.warn('Snapshot null, fallback ke mode offline');
           this.checklist = [];
           this.schedule = [];
+          this.loading = false;
         }
-        this.loading = false;
         this.checkForConfetti();
       }, (error) => {
         console.error('Firestore error:', error);
@@ -200,25 +211,42 @@ function app() {
         done: false
       };
       const updated = [...this.checklist, newItem];
-      setDoc(docRef, { checklist: updated }, { merge: true });
+      this._localUpdating = true;
+      this.checklist = updated; // update lokal dulu → langsung muncul di UI
+      setDoc(docRef, { checklist: updated }, { merge: true }).then(() => {
+        this._localUpdating = false;
+      }).catch(() => {
+        this._localUpdating = false;
+      });
       this.newItem = '';
     },
 
     toggleItem(idx) {
       const { doc, setDoc } = window.FirebaseHelpers;
       const docRef = doc(window.FirebaseHelpers.db, 'days', this.selectedDate);
+      this._localUpdating = true;
       this.checklist = this.checklist.map((it, i) =>
         i === idx ? { ...it, done: !it.done } : it
       );
-      setDoc(docRef, { checklist: this.checklist }, { merge: true });
+      setDoc(docRef, { checklist: this.checklist }, { merge: true }).then(() => {
+        this._localUpdating = false;
+      }).catch(() => {
+        this._localUpdating = false;
+      });
       this.checkForConfetti();
     },
 
     deleteItem(idx) {
       const { doc, setDoc } = window.FirebaseHelpers;
       const docRef = doc(window.FirebaseHelpers.db, 'days', this.selectedDate);
-      this.checklist.splice(idx, 1);
-      setDoc(docRef, { checklist: this.checklist }, { merge: true });
+      const updated = this.checklist.filter((_, i) => i !== idx); // buat array baru
+      this._localUpdating = true;
+      this.checklist = updated;
+      setDoc(docRef, { checklist: updated }, { merge: true }).then(() => {
+        this._localUpdating = false;
+      }).catch(() => {
+        this._localUpdating = false;
+      });
     },
 
     /* --- Schedule Functions --- */
@@ -235,6 +263,8 @@ function app() {
       const updated = [...this.schedule, newItem];
       // Sort by time
       updated.sort((a, b) => a.time.localeCompare(b.time));
+      this.schedule = updated;
+      this.checkPastSchedules();
       setDoc(docRef, { schedule: updated }, { merge: true });
       this.newSchedTime = '';
       this.newSchedText = '';
@@ -244,8 +274,9 @@ function app() {
     deleteSchedule(idx) {
       const { doc, setDoc } = window.FirebaseHelpers;
       const docRef = doc(window.FirebaseHelpers.db, 'days', this.selectedDate);
-      this.schedule.splice(idx, 1);
-      setDoc(docRef, { schedule: this.schedule }, { merge: true });
+      const updated = this.schedule.filter((_, i) => i !== idx); // buat array baru
+      this.schedule = updated;
+      setDoc(docRef, { schedule: updated }, { merge: true });
     },
 
     /* --- Confetti --- */
