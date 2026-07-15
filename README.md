@@ -1,7 +1,7 @@
 # Nata's Daily 🩷
 
 Aplikasi web pribadi untuk mencatat barang persiapan dan jadwal kegiatan harian.
-Dibuat khusus untuk kamu @natinanana — semangat magang! 🫶
+Dibuat khusus untuk Nataaa — semangat magang! 🫶💗😍
 
 Akses terbatas — hanya bisa digunakan oleh akun yang terdaftar di Firebase Auth.
 
