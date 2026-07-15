@@ -39,6 +39,10 @@ function app() {
     unsubscribe: null,
     _localUpdating: false, // flag cegah snapshot overwrite saat update lokal
 
+    /* --- Suggestion state --- */
+    suggestions: [],         // barang yang disarankan
+    loadingSuggestions: false,
+
     init() {
       console.log('App Alpine initialization...');
       this.setToday();
@@ -135,6 +139,7 @@ function app() {
       if (!this.firebaseReady) return;
       this.updateDateStrings();
       this.loading = true;
+      this.loadSuggestions();
 
       // Unsubscribe previous listener
       if (this.unsubscribe) this.unsubscribe();
@@ -219,6 +224,7 @@ function app() {
         this._localUpdating = false;
       });
       this.newItem = '';
+      this.saveToCatalog(trimmed); // simpan ke katalog
     },
 
     toggleItem(idx) {
@@ -294,6 +300,130 @@ function app() {
 
     get doneCount() {
       return this.checklist.filter(i => i.done).length;
+    },
+
+    /* ====== Suggestion Engine ====== */
+
+    // Simpan item ke katalog otomatis waktu ditambah
+    saveToCatalog(itemText) {
+      const { getDoc, doc, setDoc, serverTimestamp } = window.FirebaseHelpers;
+      const catRef = doc(window.FirebaseHelpers.db, 'catalog', itemText.toLowerCase().trim());
+
+      getDoc(catRef).then((snap) => {
+        if (snap.exists) {
+          const data = snap.data();
+          setDoc(catRef, {
+            count: (data.count || 0) + 1,
+            lastUsed: new Date().toISOString().split('T')[0],
+            text: itemText.trim()
+          }, { merge: true });
+        } else {
+          setDoc(catRef, {
+            count: 1,
+            lastUsed: new Date().toISOString().split('T')[0],
+            text: itemText.trim()
+          });
+        }
+      }).catch((err) => console.warn('Katalog save error:', err));
+    },
+
+    // Ambil barang-barang dari kemarin
+    getYesterdayItems() {
+      const d = new Date(this.selectedDate);
+      d.setDate(d.getDate() - 1);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const yesterdayStr = `${y}-${m}-${day}`;
+
+      const { getDoc, doc } = window.FirebaseHelpers;
+      const docRef = doc(window.FirebaseHelpers.db, 'days', yesterdayStr);
+
+      return getDoc(docRef).then((snap) => {
+        if (snap && snap.exists) {
+          const data = snap.data();
+          return (data.checklist || []).map(i => i.text);
+        }
+        return [];
+      }).catch(() => []);
+    },
+
+    // Ambil barang favorit (paling sering dipake) dari katalog
+    getFavoriteItems() {
+      const { db } = window.FirebaseHelpers;
+      return db.collection('catalog').orderBy('count', 'desc').limit(8).get()
+        .then((snap) => {
+          const items = [];
+          snap.forEach((d) => {
+            const data = d.data();
+            if (data.text) items.push(data.text);
+          });
+          return items;
+        }).catch(() => []);
+    },
+
+    // Muat saran — milah dari kemarin + favorit
+    loadSuggestions() {
+      this.suggestions = [];
+      this.loadingSuggestions = true;
+
+      Promise.all([
+        this.getYesterdayItems(),
+        this.getFavoriteItems()
+      ]).then(([yesterday, favorites]) => {
+        const seen = new Set();
+        const result = [];
+
+        // Prioritaskan barang kemarin
+        yesterday.forEach(text => {
+          const t = text.trim();
+          if (t && !seen.has(t.toLowerCase())) {
+            seen.add(t.toLowerCase());
+            result.push({ text: t, type: 'kemarin' });
+          }
+        });
+
+        // Tambah favorit yang belum ada
+        favorites.forEach(text => {
+          const t = text.trim();
+          if (t && !seen.has(t.toLowerCase())) {
+            seen.add(t.toLowerCase());
+            result.push({ text: t, type: 'favorit' });
+          }
+        });
+
+        // Cek & sisihkan yg udah ada di checklist hari ini
+        const existing = new Set(this.checklist.map(i => i.text.toLowerCase()));
+        this.suggestions = result.filter(s => !existing.has(s.text.toLowerCase()));
+
+        this.loadingSuggestions = false;
+      }).catch(() => {
+        this.loadingSuggestions = false;
+      });
+    },
+
+    // Tambah saran ke checklist
+    addSuggestion(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+      const { doc, setDoc } = window.FirebaseHelpers;
+      const docRef = doc(window.FirebaseHelpers.db, 'days', this.selectedDate);
+      const newItem = {
+        id: Date.now(),
+        text: trimmed,
+        done: false
+      };
+      const updated = [...this.checklist, newItem];
+      this._localUpdating = true;
+      this.checklist = updated;
+      setDoc(docRef, { checklist: updated }, { merge: true }).then(() => {
+        this._localUpdating = false;
+      }).catch(() => {
+        this._localUpdating = false;
+      });
+      // Hapus dari suggestions
+      this.suggestions = this.suggestions.filter(s => s.text.toLowerCase() !== text.toLowerCase());
+      this.saveToCatalog(text);
     },
 
     logout() {

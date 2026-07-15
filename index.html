@@ -117,6 +117,21 @@
             <div class="progress-fill" :style="'width:' + (checklist.length ? (doneCount/checklist.length*100) : 0) + '%'"></div>
           </div>
 
+          <!-- ====== SUGGESTIONS ====== -->
+          <div class="suggestions" x-show="suggestions.length > 0">
+            <p class="suggestions-title">💡 Saran untuk hari ini</p>
+            <div class="suggestions-list">
+              <template x-for="s in suggestions" :key="s.text">
+                <button class="suggestion-chip" @click="addSuggestion(s.text)" :title="'Dari ' + s.type">
+                  <span class="suggestion-label" x-text="s.text"></span>
+                  <span class="suggestion-badge" x-show="s.type === 'kemarin'" x-text="'📅'"></span>
+                  <span class="suggestion-badge" x-show="s.type === 'favorit'" x-text="'⭐'"></span>
+                  <span class="suggestion-add">+</span>
+                </button>
+              </template>
+            </div>
+          </div>
+
           <!-- items -->
           <ul class="list-items">
             <template x-for="(item, idx) in checklist" :key="item.id">

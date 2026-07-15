@@ -16,6 +16,7 @@ Akses terbatas — hanya bisa digunakan oleh akun yang terdaftar di Firebase Aut
 - 📆 **Anniversary counter** — hitung hari bersama
 - 💪 **Countdown magang** — sisa hari kerja
 - 🔐 **Login email/password** — hanya pengguna terdaftar yang bisa akses
+- 💡 **Saran barang pintar** — rekomendasi barang dari kemarin & favoritmu
 
 ## 🛠️ Tech Stack
 
