@@ -44,6 +44,7 @@ body {
   text-align: center;
   margin-bottom: 12px;
   position: relative;
+  padding-top: 8px;
 }
 .anniversary-badge {
   display: inline-flex;
@@ -445,6 +446,102 @@ body {
 
 /* --- SELECTION --- */
 ::selection { background: var(--primary); color: white; }
+
+/* ====== LOGIN OVERLAY ====== */
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+}
+.login-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 40px 32px 32px;
+  text-align: center;
+  max-width: 360px;
+  width: 100%;
+  border: 1.5px solid var(--border);
+}
+.login-icon {
+  font-size: 3rem;
+  margin-bottom: 8px;
+  animation: heartbeat 1.5s infinite;
+}
+.login-title {
+  font-family: var(--font-head);
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+.login-sub {
+  color: var(--text-light);
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+}
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.login-input {
+  border: 2px solid var(--border);
+  border-radius: 50px;
+  padding: 12px 18px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  background: #faf5f0;
+  transition: var(--transition);
+}
+.login-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: white;
+}
+.login-error {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.login-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 4px;
+}
+.login-btn:hover { background: #d85a6a; transform: scale(1.02); }
+.login-btn:disabled { opacity: 0.6; cursor: default; }
+
+/* --- LOGOUT BUTTON --- */
+.btn-logout {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-logout:hover { border-color: var(--primary); background: var(--primary-light); }
 
 /* --- BONUS: confetti overrides --- */
 canvas.confetti-canvas { pointer-events: none !important; }

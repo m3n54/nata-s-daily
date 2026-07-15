@@ -294,6 +294,10 @@ function app() {
 
     get doneCount() {
       return this.checklist.filter(i => i.done).length;
+    },
+
+    logout() {
+      if (this.unsubscribe) this.unsubscribe();
+      window.logoutUser();
     }
-  };
 }

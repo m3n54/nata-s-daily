@@ -17,7 +17,22 @@
 </head>
 <body>
 
-  <div x-data="app()" x-init="init()" class="app-wrap">
+  <!-- ====== LOGIN OVERLAY ====== -->
+  <div class="login-overlay" x-data="loginForm()" x-init="init()" x-show="!$store.auth.loggedIn">
+    <div class="login-card">
+      <div class="login-icon">💗</div>
+      <h2 class="login-title">Nata's Daily</h2>
+      <p class="login-sub">Masuk dulu yuk sayang 💕</p>
+      <form @submit.prevent="login" class="login-form">
+        <input type="email" x-model="email" placeholder="Email" class="login-input" required autocomplete="email" />
+        <input type="password" x-model="password" placeholder="Password" class="login-input" required autocomplete="current-password" />
+        <p class="login-error" x-show="error" x-text="error"></p>
+        <button type="submit" class="login-btn" x-text="loading ? 'Masuk...' : 'Masuk 💕'"></button>
+      </form>
+    </div>
+  </div>
+
+  <div x-data="app()" x-init="init()" class="app-wrap" x-show="$store.auth.loggedIn">
 
     <!-- ====== HERO / HEADER ====== -->
     <header class="header">
@@ -39,6 +54,8 @@
       <div class="countdown-card done" x-show="internship && internship.done">
         🎉 <span>Magang selesai! Selamattt!</span> 🎉
       </div>
+
+      <button class="btn-logout" @click="logout" x-show="$store.auth.loggedIn" title="Logout">🚪</button>
 
       <h1 class="title">☀️ Nata's Daily</h1>
       <p class="subtitle" x-text="dateStr + ' — ' + dayName"></p>
@@ -179,7 +196,7 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Anonymous auth — silent, tanpa form login
+    // Email/Password auth — form login dulu baru bisa pakai
     let firebaseReady = false;
     function setReady() {
       firebaseReady = true;
@@ -188,15 +205,45 @@
       window.dispatchEvent(new CustomEvent('firebase-ready'));
     }
 
+    // Alpine store global — biar tau status login di semua komponen
+    document.addEventListener('alpine:init', () => {
+      Alpine.store('auth', {
+        loggedIn: false,
+        user: null,
+        setLoggedIn(user) {
+          this.loggedIn = true;
+          this.user = user;
+        },
+        setLoggedOut() {
+          this.loggedIn = false;
+          this.user = null;
+        }
+      });
+    });
+
+    // Login function — dipanggil dari form
+    window.loginWithEmail = function(email, password) {
+      return auth.signInWithEmailAndPassword(email, password);
+    };
+
+    // Logout function
+    window.logoutUser = function() {
+      return auth.signOut();
+    };
+
+    // Create account (hidden — buat akun via Firebase Console aja)
+    // window.createAccount = function(email, password) {
+    //   return auth.createUserWithEmailAndPassword(email, password);
+    // };
+
     auth.onAuthStateChanged(function(user) {
       if (user) {
         console.log('✅ Firebase auth OK — uid:', user.uid);
+        Alpine.store('auth').setLoggedIn(user);
         setReady();
       } else {
-        auth.signInAnonymously().catch(function(err) {
-          console.warn('⚠️ Auth gagal:', err.message);
-          setReady(); // tetap jalan read-only
-        });
+        console.log('⏳ Menunggu login...');
+        Alpine.store('auth').setLoggedOut();
       }
     });
 
@@ -223,6 +270,45 @@
       }
     };
   </script>
-  <script src="app.js?v=9"></script>
+  <!-- ====== Login form Alpine component ====== -->
+  <script>
+    function loginForm() {
+      return {
+        email: '',
+        password: '',
+        error: '',
+        loading: false,
+
+        init() {
+          // Reset form state setiap kali overlay muncul
+          this.email = '';
+          this.password = '';
+          this.error = '';
+        },
+
+        login() {
+          this.loading = true;
+          this.error = '';
+          window.loginWithEmail(this.email, this.password)
+            .then(() => {
+              this.loading = false;
+            })
+            .catch((err) => {
+              this.loading = false;
+              if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+                this.error = 'Email atau password salah 💔';
+              } else if (err.code === 'auth/invalid-email') {
+                this.error = 'Format email tidak valid 😔';
+              } else if (err.code === 'auth/too-many-requests') {
+                this.error = 'Terlalu banyak percobaan. Coba lagi nanti ya 🙏';
+              } else {
+                this.error = 'Login gagal: ' + err.message;
+              }
+            });
+        }
+      };
+    }
+  </script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

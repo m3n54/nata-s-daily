@@ -1,101 +1,90 @@
-# Hari Kita 🩷
+# Nata's Daily 🩷
 
-Aplikasi web sederhana untuk mencatat barang persiapan dan jadwal kegiatan harian.
-Dibuat khusus untuk berdua — kamu dan pacar. Real-time sync, tanpa login ribet.
+Aplikasi web pribadi untuk mencatat barang persiapan dan jadwal kegiatan harian.
+Dibuat khusus untuk kamu @natinanana — semangat magang! 🫶
+
+Akses terbatas — hanya bisa digunakan oleh akun yang terdaftar di Firebase Auth.
 
 ## ✨ Fitur
 
 - 📋 **Checklist barang & persiapan** — tambah, centang, hapus
 - ⏰ **Jadwal kegiatan** — atur waktu, catatan opsional
-- 💗 **Sync real-time** — perubahan dari HP kamu langsung muncul di HP pacar
+- 💗 **Sync real-time** — perubahan dari HP langsung muncul di device lain
 - 📅 **Navigasi hari** — lihat hari kemarin/besok
 - 🎉 **Confetti** — kalau semua checklist selesai
 - 💌 **Quote harian** — ganti sesuai selera
 - 📆 **Anniversary counter** — hitung hari bersama
+- 💪 **Countdown magang** — sisa hari kerja
+- 🔐 **Login email/password** — hanya pengguna terdaftar yang bisa akses
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: HTML, CSS, vanilla JS + Alpine.js
 - **Database**: Firebase Firestore (free tier)
+- **Auth**: Firebase Authentication (Email/Password)
 - **Hosting**: GitHub Pages (free)
 
 ---
 
-## 🚀 Langkah Setup
+## 🚀 Panduan Setup (untuk yang clone)
 
-### 1. Buat Firebase Project
+### 1. Firebase Project
 
-1. Buka [firebase.google.com](https://firebase.google.com)
-2. Klik **Add project** → beri nama → **Create project**
-3. Di dashboard, klik **Firestore Database** → **Create database**
-   - Pilih mode **test mode** (nanti kita ganti rules)
-   - Pilih lokasi: `asia-southeast1` (Singapore) atau `asia-east1` (Taiwan)
-4. Klik **Authentication** → **Get started** → **Sign-in method**
-   - Aktifkan **Anonymous** (biar ga perlu login manual)
+1. Buka [firebase.google.com](https://firebase.google.com) → **Add project**
+2. **Firestore Database** → **Create database** (pilih lokasi `asia-southeast1`)
+3. **Authentication** → **Sign-in method** → **Enable Email/Password**
+4. **Authentication** → **Users** → **Add user** buat 2 akun (kamu & pacar)
 
-### 2. Ambil Firebase Config
+### 2. Ambil Firebase Config & Tempel
 
-1. Di Firebase Console → **Project Settings** (gear icon) → tab **General**
-2. Scroll ke bawah → **Your apps** → klik icon **Web** (`</>`)
-3. Beri nickname, klik **Register app**
-4. Copy config object (6 baris: apiKey, authDomain, dll)
-5. Buka `index.html`, cari bagian `const firebaseConfig = { ... }`
-6. Ganti dengan config kamu
+1. Firebase Console → **Project Settings** → **Your apps** → **Web** (`</>`)
+2. Copy config, tempel di `index.html` bagian `const firebaseConfig = { ... }`
 
-### 3. Atur Firestore Security Rules
+### 3. Firestore Rules
 
-Di Firestore → **Rules**, ganti dengan:
+Buka Firebase Console → **Firestore** → **Rules**, paste ini:
 
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /days/{dayId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
   }
 }
 ```
 
-> ⚠️ Ini buat app pribadi berdua. Kalau mau lebih aman, pakai auth check.
-
 ### 4. Personalisasi
 
-- **Warna**: edit CSS variables di `style.css` (`--primary`, `--accent`, dll)
-- **Anniversary**: di `app.js`, cari `new Date('2024-01-01')` → ganti tanggal kalian
+- **Anniversary**: di `app.js`, cari `new Date('2026-06-28')` → ganti tanggal kalian
 - **Quotes**: di `app.js`, array `QUOTES` → tulis quotes sendiri
-- **Nama**: di `index.html` footer "Dibuat khusus untuk kamu"
+- **Warna**: CSS variables di `style.css` (`--primary`, `--accent`, dll)
 
-### 5. Deploy ke GitHub Pages
+### 5. Deploy GitHub Pages
 
-1. Buat repo di GitHub (misal `hari-kita`)
-2. Upload semua file: `index.html`, `style.css`, `app.js`, `manifest.json`
-3. Repo → **Settings** → **Pages**
-4. Source: **Deploy from a branch** → pilih `main` → `/root`
-5. Save → tunggu ~1 menit
-6. Web live di: `https://username.github.io/hari-kita`
+```
+git push origin main
+```
 
-### 6. Akses dari HP
-
-- Buka URL di browser HP
-- Chrome/Android: menu `⋮` → **Add to Home screen** → jadi app
-- Safari/iOS: Share → **Add to Home Screen**
+Repo → **Settings** → **Pages** → Source: `main` → `/root`
 
 ---
 
 ## 📁 Struktur
 
 ```
-hari-kita/
-├── index.html      → Halaman utama
+daily-app/
+├── index.html      → Halaman utama + login
 ├── style.css       → Gaya visual
 ├── app.js          → Logika + Firebase
+├── firestore.rules → Aturan keamanan database
 ├── manifest.json   → PWA config
 └── README.md       → Panduan ini
 ```
 
 ## 💡 Tips
 
-- Buka di 2 device berbeda → coba tambah item → lihat sync real-time
+- Buka di 2 device → login akun masing-masing → coba tambah item → lihat sync
 - Data per hari disimpan terpisah (ID = tanggal)
 - Free tier Firebase cukup untuk berdua seumur hidup ✨
