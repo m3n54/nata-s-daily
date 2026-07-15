@@ -163,6 +163,28 @@
         <section class="card card-schedule">
           <div class="card-header">
             <h2>⏰ Jadwal Kegiatan</h2>
+            <div class="sched-actions">
+              <template x-if="hasTemplateForToday">
+                <button class="btn-sched-action btn-apply" @click="applyTemplate" title="Terapkan template jadwal">📥</button>
+              </template>
+              <button class="btn-sched-action btn-template" @click="openTemplateModal" title="Atur template jadwal">🗂️</button>
+              <button class="btn-sched-action btn-copy" @click="openCopyModal" title="Salin jadwal dari hari lain">📋</button>
+            </div>
+          </div>
+
+          <!-- ====== SCHEDULE SUGGESTIONS ====== -->
+          <div class="sched-suggestions" x-show="scheduleSuggestions.length > 0">
+            <p class="sched-suggestions-title">💡 Saran dari hari sebelumnya</p>
+            <div class="sched-suggestions-list">
+              <template x-for="s in scheduleSuggestions" :key="s.date + '|' + s.time + '|' + s.text">
+                <button class="sched-suggestion-chip" @click="addScheduleSuggestion(s)">
+                  <span class="ss-time" x-text="s.time"></span>
+                  <span class="ss-text" x-text="s.text"></span>
+                  <span class="ss-day" x-text="s.dayName"></span>
+                  <span class="ss-add">+</span>
+                </button>
+              </template>
+            </div>
           </div>
 
           <ul class="schedule-list">
@@ -209,6 +231,71 @@
       <p>🩷 Dibuat khusus untuk kamu &mdash; my love</p>
       <p class="tiny">semangatt yaaa loveee 🫶🫶🫶</p>
     </footer>
+
+    <!-- ====== TEMPLATE SCHEDULE MODAL ====== -->
+    <div class="modal-overlay" x-show="showTemplateModal" x-cloak>
+      <div class="modal" @click.outside="showTemplateModal = false" @keydown.escape="showTemplateModal = false">
+        <div class="modal-header">
+          <h2>&#x1F5C2;&#xFE0F; Atur Template Jadwal</h2>
+          <button class="modal-close" @click="showTemplateModal = false">&times;</button>
+        </div>
+
+        <!-- Day tabs -->
+        <div class="template-tabs">
+          <template x-for="day in templateDays" :key="day">
+            <button class="template-tab" :class="{ active: templateActiveDay === day }" @click="templateActiveDay = day" x-text="day"></button>
+          </template>
+        </div>
+
+        <p class="template-hint">Template untuk <strong x-text="templateActiveDay"></strong></p>
+
+        <!-- Template items -->
+        <ul class="template-list">
+          <template x-for="(item, idx) in getTemplateByDay(templateActiveDay)" :key="item.id">
+            <li class="template-row">
+              <span class="template-time" x-text="item.time"></span>
+              <span class="template-text" x-text="item.text"></span>
+              <span class="template-note" x-show="item.note" x-text="item.note"></span>
+              <button class="btn-del" @click="deleteTemplateItem(idx)" title="Hapus">&times;</button>
+            </li>
+          </template>
+          <template x-if="getTemplateByDay(templateActiveDay).length === 0">
+            <li class="template-empty">Belum ada jadwal template untuk hari ini</li>
+          </template>
+        </ul>
+
+        <!-- Add to template form -->
+        <form class="add-form template-add-form" @submit.prevent="addTemplateItem">
+          <input type="time" x-model="newTmplTime" class="input-time" required />
+          <input type="text" x-model="newTmplText" placeholder="Kegiatan..." class="input-add" maxlength="200" required />
+          <input type="text" x-model="newTmplNote" placeholder="Catatan (opsional)" class="input-note" maxlength="200" />
+          <button class="btn-add" :disabled="!newTmplText.trim() || !newTmplTime">+</button>
+        </form>
+
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="showTemplateModal = false">Batal</button>
+          <button class="btn-primary" @click="saveTemplates">&#x1F4BE; Simpan Template</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== COPY SCHEDULE MODAL ====== -->
+    <div class="modal-overlay" x-show="showCopyModal" x-cloak>
+      <div class="modal modal-sm" @click.outside="showCopyModal = false" @keydown.escape="showCopyModal = false">
+        <div class="modal-header">
+          <h2>&#x1F4CB; Salin Jadwal</h2>
+          <button class="modal-close" @click="showCopyModal = false">&times;</button>
+        </div>
+        <p class="copy-hint">Pilih tanggal sumber jadwal yang ingin disalin ke <strong x-text="dateStr"></strong></p>
+        <div class="copy-form">
+          <input type="date" x-model="copySourceDate" class="date-picker copy-date-picker" />
+          <button class="btn-primary" @click="copySchedule" :disabled="!copySourceDate">&#x1F4CB; Salin Jadwal</button>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="showCopyModal = false">Batal</button>
+        </div>
+      </div>
+    </div>
 
   </div>
 

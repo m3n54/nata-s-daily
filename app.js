@@ -43,6 +43,24 @@ function app() {
     suggestions: [],         // barang yang disarankan
     loadingSuggestions: false,
 
+    /* --- Schedule Template state --- */
+    templates: {},
+    templateLoading: false,
+    templateDays: ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'],
+    templateActiveDay: 'Senin',
+    newTmplTime: '',
+    newTmplText: '',
+    newTmplNote: '',
+    showTemplateModal: false,
+
+    /* --- Copy Schedule state --- */
+    showCopyModal: false,
+    copySourceDate: '',
+
+    /* --- Schedule Suggestions state --- */
+    scheduleSuggestions: [],
+    loadingSchedSuggestions: false,
+
     init() {
       console.log('App Alpine initialization...');
       this.setToday();
@@ -140,6 +158,10 @@ function app() {
       this.updateDateStrings();
       this.loading = true;
       this.loadSuggestions();
+      this.loadTemplates();
+      if (!this.showTemplateModal) {
+        this.loadScheduleSuggestions();
+      }
 
       // Unsubscribe previous listener
       if (this.unsubscribe) this.unsubscribe();
@@ -429,6 +451,306 @@ function app() {
     logout() {
       if (this.unsubscribe) this.unsubscribe();
       window.logoutUser();
+    },
+
+    /* ====== SCHEDULE TEMPLATE FUNCTIONS ====== */
+
+    // Load templates untuk semua hari (dari Firestore saat pertama kali)
+    loadTemplates() {
+      if (this.templateLoading) return;
+      this.templateLoading = true;
+      const { db } = window.FirebaseHelpers;
+      db.collection('templates').doc('schedule').get().then((snap) => {
+        if (snap && snap.exists) {
+          this.templates = snap.data().days || {};
+        } else {
+          this.templates = {};
+        }
+        this.templateLoading = false;
+      }).catch(() => {
+        this.templates = {};
+        this.templateLoading = false;
+      });
+    },
+
+    // Nama field hari dari angka (0=Minggu)
+    dayNameFromIndex(idx) {
+      const MAP = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      return MAP[idx % 7];
+    },
+
+    // Dapatkan nama template untuk hari ini (berdasarkan selectedDate)
+    get templateForToday() {
+      const dayIdx = new Date(this.selectedDate).getDay();
+      // getDay(): 0=Minggu, 1=Senin, ..., 6=Sabtu
+      const MAP = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      return MAP[dayIdx];
+    },
+
+    // Cek apakah ada template untuk hari ini
+    get hasTemplateForToday() {
+      const t = this.templateForToday;
+      return this.templates[t] && this.templates[t].length > 0;
+    },
+
+    // Ambil template schedule untuk suatu hari
+    getTemplateByDay(dayName) {
+      return this.templates[dayName] || [];
+    },
+
+    // Tambah item ke template (sementara, sebelum simpan)
+    addTemplateItem() {
+      if (!this.newTmplText.trim() || !this.newTmplTime) return;
+      const day = this.templateActiveDay;
+      if (!this.templates[day]) this.templates[day] = [];
+      this.templates[day].push({
+        id: Date.now(),
+        time: this.newTmplTime,
+        text: this.newTmplText.trim(),
+        note: this.newTmplNote.trim()
+      });
+      // Sort by time
+      this.templates[day].sort((a, b) => a.time.localeCompare(b.time));
+      this.newTmplTime = '';
+      this.newTmplText = '';
+      this.newTmplNote = '';
+    },
+
+    // Hapus item dari template
+    deleteTemplateItem(idx) {
+      const day = this.templateActiveDay;
+      if (!this.templates[day]) return;
+      this.templates[day] = this.templates[day].filter((_, i) => i !== idx);
+    },
+
+    // Simpan semua template ke Firestore
+    saveTemplates() {
+      const { setDoc, doc } = window.FirebaseHelpers;
+      const ref = doc(window.FirebaseHelpers.db, 'templates', 'schedule');
+      return setDoc(ref, { days: this.templates }, { merge: true }).then(() => {
+        this.showTemplateModal = false;
+      }).catch((err) => {
+        console.warn('Gagal simpan template:', err);
+      });
+    },
+
+    // Buka modal template & load data
+    openTemplateModal() {
+      this.loadTemplates();
+      this.templateActiveDay = this.templateForToday;
+      this.showTemplateModal = true;
+    },
+
+    // Terapkan template hari ini ke jadwal hari ini
+    applyTemplate() {
+      const dayName = this.templateForToday;
+      const tmpl = this.templates[dayName];
+      if (!tmpl || !tmpl.length) return;
+
+      const { doc, setDoc } = window.FirebaseHelpers;
+      const docRef = doc(window.FirebaseHelpers.db, 'days', this.selectedDate);
+
+      // Ambil item yang belum ada (berdasarkan time+text)
+      const existingKeys = new Set(this.schedule.map(s => s.time + '|' + s.text.toLowerCase()));
+      const toAdd = tmpl.filter(t => !existingKeys.has(t.time + '|' + t.text.toLowerCase()));
+
+      if (!toAdd.length) return;
+
+      const newItems = toAdd.map(t => ({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        time: t.time,
+        text: t.text,
+        note: t.note || '',
+        past: false
+      }));
+
+      const updated = [...this.schedule, ...newItems];
+      updated.sort((a, b) => a.time.localeCompare(b.time));
+      this.schedule = updated;
+      this.checkPastSchedules();
+      setDoc(docRef, { schedule: updated }, { merge: true }).catch((err) => {
+        console.warn('Gagal apply template:', err);
+      });
+    },
+
+    /* ====== COPY SCHEDULE FUNCTIONS ====== */
+
+    // Buka modal copy
+    openCopyModal() {
+      // Set default: kemarin
+      const d = new Date(this.selectedDate);
+      d.setDate(d.getDate() - 1);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      this.copySourceDate = `${y}-${m}-${day}`;
+      this.showCopyModal = true;
+    },
+
+    // Copy jadwal dari tanggal sumber
+    copySchedule() {
+      if (!this.copySourceDate || this.copySourceDate === this.selectedDate) return;
+
+      const { getDoc, doc, setDoc } = window.FirebaseHelpers;
+      const srcRef = doc(window.FirebaseHelpers.db, 'days', this.copySourceDate);
+
+      getDoc(srcRef).then((snap) => {
+        if (!snap || !snap.exists) {
+          alert('Tidak ada jadwal di tanggal ' + this.copySourceDate);
+          return;
+        }
+        const data = snap.data();
+        const sourceSchedule = data.schedule || [];
+        if (!sourceSchedule.length) {
+          alert('Tidak ada jadwal di tanggal ' + this.copySourceDate);
+          return;
+        }
+
+        // Filter yang belum ada di hari ini
+        const existingKeys = new Set(this.schedule.map(s => s.time + '|' + s.text.toLowerCase()));
+        const toAdd = sourceSchedule.filter(t => !existingKeys.has(t.time + '|' + t.text.toLowerCase()));
+
+        if (!toAdd.length) {
+          alert('Semua jadwal sudah ada di hari ini');
+          return;
+        }
+
+        const newItems = toAdd.map(t => ({
+          id: Date.now() + Math.floor(Math.random() * 1000),
+          time: t.time,
+          text: t.text,
+          note: t.note || '',
+          past: false
+        }));
+
+        const updated = [...this.schedule, ...newItems];
+        updated.sort((a, b) => a.time.localeCompare(b.time));
+        this.schedule = updated;
+        this.checkPastSchedules();
+
+        const dstRef = doc(window.FirebaseHelpers.db, 'days', this.selectedDate);
+        setDoc(dstRef, { schedule: updated }, { merge: true }).then(() => {
+          this.showCopyModal = false;
+        }).catch((err) => {
+          console.warn('Gagal copy jadwal:', err);
+        });
+      }).catch((err) => {
+        console.warn('Gagal baca sumber:', err);
+        alert('Gagal membaca jadwal sumber');
+      });
+    },
+
+    /* ====== SCHEDULE SUGGESTIONS ====== */
+
+    // Ambil jadwal dari N hari terakhir untuk saran
+    loadScheduleSuggestions() {
+      this.scheduleSuggestions = [];
+      this.loadingSchedSuggestions = true;
+
+      const promises = [];
+      const existingKeys = new Set(this.schedule.map(s => s.time + '|' + s.text.toLowerCase()));
+
+      // Lihat 7 hari ke belakang dari selectedDate (kecuali hari ini)
+      for (let i = 1; i <= 7; i++) {
+        const d = new Date(this.selectedDate);
+        d.setDate(d.getDate() - i);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${day}`;
+        const dayName = this.dayNameFromIndex(d.getDay());
+
+        promises.push(
+          this._getDaySchedule(dateStr).then((items) => {
+            if (!items.length) return null;
+            return { date: dateStr, dayName, items };
+          })
+        );
+      }
+
+      Promise.all(promises).then((results) => {
+        resultLoop:
+        for (const r of results) {
+          if (!r) continue;
+          // Filter item yang belum ada di hari ini
+          const freshItems = r.items.filter(
+            it => !existingKeys.has(it.time + '|' + it.text.toLowerCase())
+          );
+          if (!freshItems.length) continue;
+
+          // Kelompokkan per hari
+          for (const item of freshItems) {
+            if (this.scheduleSuggestions.length >= 8) break resultLoop;
+            this.scheduleSuggestions.push({
+              date: r.date,
+              dayName: r.dayName,
+              time: item.time,
+              text: item.text,
+              note: item.note
+            });
+          }
+        }
+        this.loadingSchedSuggestions = false;
+      }).catch(() => {
+        this.loadingSchedSuggestions = false;
+      });
+    },
+
+    // Helper: ambil jadwal dari suatu tanggal
+    _getDaySchedule(dateStr) {
+      const { getDoc, doc } = window.FirebaseHelpers;
+      const ref = doc(window.FirebaseHelpers.db, 'days', dateStr);
+      return getDoc(ref).then((snap) => {
+        if (snap && snap.exists) {
+          return (snap.data().schedule || []).map(s => ({
+            time: s.time,
+            text: s.text,
+            note: s.note || ''
+          }));
+        }
+        return [];
+      }).catch(() => []);
+    },
+
+    // Tambah saran jadwal ke hari ini
+    addScheduleSuggestion(item) {
+      // Cegah duplikat
+      const exists = this.schedule.some(
+        s => s.time === item.time && s.text.toLowerCase() === item.text.toLowerCase()
+      );
+      if (exists) {
+        this.scheduleSuggestions = this.scheduleSuggestions.filter(
+          s => !(s.time === item.time && s.text.toLowerCase() === item.text.toLowerCase())
+        );
+        return;
+      }
+
+      const { doc, setDoc } = window.FirebaseHelpers;
+      const docRef = doc(window.FirebaseHelpers.db, 'days', this.selectedDate);
+      const newItem = {
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        time: item.time,
+        text: item.text,
+        note: item.note || '',
+        past: false
+      };
+      const updated = [...this.schedule, newItem];
+      updated.sort((a, b) => a.time.localeCompare(b.time));
+      this.schedule = updated;
+      this.checkPastSchedules();
+      setDoc(docRef, { schedule: updated }, { merge: true }).catch((err) => {
+        console.warn('Gagal tambah saran jadwal:', err);
+      });
+      // Hapus dari saran
+      this.scheduleSuggestions = this.scheduleSuggestions.filter(
+        s => !(s.time === item.time && s.text.toLowerCase() === item.text.toLowerCase())
+      );
+    },
+
+    // Muat saran jadwal (dipanggil dari loadDay)
+    loadScheduleRelated() {
+      // Cek apakah ada template untuk hari yang sedang dibuka
+      this.loadScheduleSuggestions();
     }
   }
 }
