@@ -122,10 +122,10 @@
             <p class="suggestions-title">💡 Saran untuk hari ini</p>
             <div class="suggestions-list">
               <template x-for="s in suggestions" :key="s.text">
-                <button class="suggestion-chip" @click="addSuggestion(s.text)" :title="'Dari ' + s.type">
+                <button class="suggestion-chip" @click="addSuggestion(s.text)">
                   <span class="suggestion-label" x-text="s.text"></span>
-                  <span class="suggestion-badge" x-show="s.type === 'kemarin'" x-text="'📅'"></span>
-                  <span class="suggestion-badge" x-show="s.type === 'favorit'" x-text="'⭐'"></span>
+                  <span class="suggestion-badge" x-show="s.type === 'favorit'">⭐</span>
+                  <span class="suggestion-badge s-day-badge" x-show="s.type !== 'favorit'" x-text="s.type"></span>
                   <span class="suggestion-add">+</span>
                 </button>
               </template>

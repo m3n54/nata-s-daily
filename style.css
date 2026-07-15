@@ -491,6 +491,14 @@ body {
 }
 .suggestion-label { flex: 1; }
 .suggestion-badge { font-size: 0.7rem; }
+.s-day-badge {
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 1px 6px;
+  border-radius: 50px;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
 .suggestion-add {
   font-size: 0.9rem;
   font-weight: 700;

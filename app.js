@@ -349,60 +349,62 @@ function app() {
       }).catch((err) => console.warn('Katalog save error:', err));
     },
 
-    // Ambil barang-barang dari kemarin
-    getYesterdayItems() {
-      const d = new Date(this.selectedDate);
-      d.setDate(d.getDate() - 1);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      const yesterdayStr = `${y}-${m}-${day}`;
+    // Ambil barang-barang dari N hari terakhir (dengan label hari)
+    getRecentChecklistItems() {
+      const promises = [];
 
+      for (let i = 1; i <= 7; i++) {
+        const d = new Date(this.selectedDate);
+        d.setDate(d.getDate() - i);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${day}`;
+        const dayName = this.dayNameFromIndex(d.getDay());
+
+        promises.push(
+          this._getDayChecklist(dateStr).then((items) => {
+            if (!items.length) return null;
+            return { date: dateStr, dayName, items };
+          })
+        );
+      }
+      return Promise.all(promises).then((results) => results.filter(Boolean));
+    },
+
+    // Helper: ambil checklist dari suatu tanggal
+    _getDayChecklist(dateStr) {
       const { getDoc, doc } = window.FirebaseHelpers;
-      const docRef = doc(window.FirebaseHelpers.db, 'days', yesterdayStr);
-
-      return getDoc(docRef).then((snap) => {
+      const ref = doc(window.FirebaseHelpers.db, 'days', dateStr);
+      return getDoc(ref).then((snap) => {
         if (snap && snap.exists) {
-          const data = snap.data();
-          return (data.checklist || []).map(i => i.text);
+          return (snap.data().checklist || []).map(c => c.text);
         }
         return [];
       }).catch(() => []);
     },
 
-    // Ambil barang favorit (paling sering dipake) dari katalog
-    getFavoriteItems() {
-      const { db } = window.FirebaseHelpers;
-      return db.collection('catalog').orderBy('count', 'desc').limit(8).get()
-        .then((snap) => {
-          const items = [];
-          snap.forEach((d) => {
-            const data = d.data();
-            if (data.text) items.push(data.text);
-          });
-          return items;
-        }).catch(() => []);
-    },
-
-    // Muat saran — milah dari kemarin + favorit
+    // Muat saran — dari 7 hari terakhir + katalog favorit
     loadSuggestions() {
       this.suggestions = [];
       this.loadingSuggestions = true;
 
       Promise.all([
-        this.getYesterdayItems(),
+        this.getRecentChecklistItems(),
         this.getFavoriteItems()
-      ]).then(([yesterday, favorites]) => {
+      ]).then(([recentDays, favorites]) => {
         const seen = new Set();
         const result = [];
 
-        // Prioritaskan barang kemarin
-        yesterday.forEach(text => {
-          const t = text.trim();
-          if (t && !seen.has(t.toLowerCase())) {
-            seen.add(t.toLowerCase());
-            result.push({ text: t, type: 'kemarin' });
-          }
+        // Prioritaskan barang dari 7 hari terakhir (paling baru dulu)
+        recentDays.forEach(day => {
+          day.items.forEach(text => {
+            const t = text.trim();
+            if (t && !seen.has(t.toLowerCase())) {
+              seen.add(t.toLowerCase());
+              result.push({ text: t, type: day.dayName, date: day.date });
+            }
+          });
         });
 
         // Tambah favorit yang belum ada
@@ -410,7 +412,7 @@ function app() {
           const t = text.trim();
           if (t && !seen.has(t.toLowerCase())) {
             seen.add(t.toLowerCase());
-            result.push({ text: t, type: 'favorit' });
+            result.push({ text: t, type: 'favorit', date: null });
           }
         });
 
