@@ -11,6 +11,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <!-- Alpine.js for reactivity -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Definisi store auth — inline script jalan setelah Alpine.js di-load -->
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.store('auth', {
+        loggedIn: false,
+        user: null,
+        setLoggedIn(user) {
+          this.loggedIn = true;
+          this.user = user;
+          // Cek apakah user sudah login dari callback Firebase yang terlewat
+          if (window.__authUser) {
+            // sudah di-set, skip
+          }
+        },
+        setLoggedOut() {
+          this.loggedIn = false;
+          this.user = null;
+        }
+      });
+    });
+  </script>
   <!-- confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
   <link rel="stylesheet" href="style.css" />
@@ -18,7 +39,7 @@
 <body>
 
   <!-- ====== LOGIN OVERLAY ====== -->
-  <div class="login-overlay" x-data="loginForm()" x-init="init()" x-show="!$store.auth.loggedIn">
+  <div class="login-overlay" x-data="loginForm()" x-init="init()" x-show="!$store.auth || !$store.auth.loggedIn" x-cloak>
     <div class="login-card">
       <div class="login-icon">💗</div>
       <h2 class="login-title">Nata's Daily</h2>
@@ -27,12 +48,13 @@
         <input type="email" x-model="email" placeholder="Email" class="login-input" required autocomplete="email" />
         <input type="password" x-model="password" placeholder="Password" class="login-input" required autocomplete="current-password" />
         <p class="login-error" x-show="error" x-text="error"></p>
-        <button type="submit" class="login-btn" x-text="loading ? 'Masuk...' : 'Masuk 💕'"></button>
+        <button type="submit" class="login-btn" x-text="loading ? 'Masuk...' : 'Masuk 💕'" :disabled="loading"></button>
       </form>
+      <p class="login-hint" x-show="!error">Login pakai akun yang sudah didaftarin ya 🫶</p>
     </div>
   </div>
 
-  <div x-data="app()" x-init="init()" class="app-wrap" x-show="$store.auth.loggedIn">
+  <div x-data="app()" x-init="init()" class="app-wrap" x-show="$store.auth && $store.auth.loggedIn" x-cloak>
 
     <!-- ====== HERO / HEADER ====== -->
     <header class="header">
@@ -206,20 +228,6 @@
     }
 
     // Alpine store global — biar tau status login di semua komponen
-    document.addEventListener('alpine:init', () => {
-      Alpine.store('auth', {
-        loggedIn: false,
-        user: null,
-        setLoggedIn(user) {
-          this.loggedIn = true;
-          this.user = user;
-        },
-        setLoggedOut() {
-          this.loggedIn = false;
-          this.user = null;
-        }
-      });
-    });
 
     // Login function — dipanggil dari form
     window.loginWithEmail = function(email, password) {
@@ -231,19 +239,22 @@
       return auth.signOut();
     };
 
-    // Create account (hidden — buat akun via Firebase Console aja)
-    // window.createAccount = function(email, password) {
-    //   return auth.createUserWithEmailAndPassword(email, password);
-    // };
-
+    // Pantau status auth
+    // Note: Bisa kepanggil SEBELUM Alpine.init(). Maka kita simpan statusnya dulu.
+    window.__authUser = null;
     auth.onAuthStateChanged(function(user) {
+      window.__authUser = user;
       if (user) {
         console.log('✅ Firebase auth OK — uid:', user.uid);
-        Alpine.store('auth').setLoggedIn(user);
+        if (typeof Alpine !== 'undefined' && Alpine.store('auth')) {
+          Alpine.store('auth').setLoggedIn(user);
+        }
         setReady();
       } else {
         console.log('⏳ Menunggu login...');
-        Alpine.store('auth').setLoggedOut();
+        if (typeof Alpine !== 'undefined' && Alpine.store('auth')) {
+          Alpine.store('auth').setLoggedOut();
+        }
       }
     });
 

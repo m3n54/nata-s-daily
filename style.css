@@ -447,6 +447,9 @@ body {
 /* --- SELECTION --- */
 ::selection { background: var(--primary); color: white; }
 
+/* --- Alpine.js cloaking — cegah flash sebelum JS siap --- */
+[x-cloak] { display: none !important; }
+
 /* ====== LOGIN OVERLAY ====== */
 .login-overlay {
   position: fixed;
@@ -507,6 +510,11 @@ body {
   color: #e74c3c;
   font-size: 0.85rem;
   font-weight: 600;
+}
+.login-hint {
+  color: var(--text-light);
+  font-size: 0.8rem;
+  margin-top: 12px;
 }
 .login-btn {
   background: var(--primary);
