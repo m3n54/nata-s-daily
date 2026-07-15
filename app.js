@@ -311,12 +311,12 @@ function app() {
     checkForConfetti() {
       const done = this.checklist.filter(i => i.done).length;
       if (done > 0 && done === this.checklist.length) {
-        confetti({
+        try { confetti({
           particleCount: 80,
           spread: 70,
           origin: { y: 0.6 },
           colors: ['#f06a7a', '#7fc7b6', '#c7b4f0', '#f7e9c7']
-        });
+        }); } catch (e) { /* confetti error harmless */ }
       }
     },
 
