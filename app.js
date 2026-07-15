@@ -384,6 +384,20 @@ function app() {
       }).catch(() => []);
     },
 
+    // Ambil barang favorit (paling sering dipake) dari katalog
+    getFavoriteItems() {
+      const { db } = window.FirebaseHelpers;
+      return db.collection('catalog').orderBy('count', 'desc').limit(8).get()
+        .then((snap) => {
+          const items = [];
+          snap.forEach((d) => {
+            const data = d.data();
+            if (data.text) items.push(data.text);
+          });
+          return items;
+        }).catch(() => []);
+    },
+
     // Muat saran — dari 7 hari terakhir + katalog favorit
     loadSuggestions() {
       this.suggestions = [];
