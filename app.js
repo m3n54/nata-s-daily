@@ -300,4 +300,5 @@ function app() {
       if (this.unsubscribe) this.unsubscribe();
       window.logoutUser();
     }
+  }
 }
