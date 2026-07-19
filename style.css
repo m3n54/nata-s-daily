@@ -33,26 +33,44 @@ body {
   position: relative;
 }
 
-/* Background Video — full screen, fixed */
+/* Background Video — fit vertikal, nggak kepotong */
 .bg-video {
   position: fixed;
-  inset: 0;
-  width: 100%;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   height: 100%;
-  object-fit: cover;
+  width: auto;
+  max-width: 100vw;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.35;
+  opacity: 0.4;
 }
 
-/* Overlay biar teks makin kebaca */
+/* Overlay gradient kiri-kanan biar teks kebaca & pinggir nggak polos */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(253, 246, 238, 0.5);
+  background: linear-gradient(
+    90deg,
+    rgba(253, 246, 238, 0.92) 0%,
+    rgba(253, 246, 238, 0.15) 30%,
+    rgba(253, 246, 238, 0.15) 70%,
+    rgba(253, 246, 238, 0.92) 100%
+  );
   z-index: 0;
   pointer-events: none;
+}
+
+/* Di HP layar kecil, gradient kiri-kanan nggak perlu — cukup overlay rata */
+@media (max-width: 640px) {
+  body::after {
+    background: rgba(253, 246, 238, 0.6);
+  }
+  .bg-video {
+    opacity: 0.3;
+  }
 }
 
 /* Semua konten di atas background */
