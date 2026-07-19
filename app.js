@@ -17,6 +17,32 @@ const QUOTES = [
   'Kita jalani hari ini dengan seru.'
 ];
 
+/* ========== Utility Functions — Normalisasi Barang ========== */
+
+function normalizeKey(text) {
+  if (!text) return '';
+  return text.toLowerCase().trim()
+    .replace(/[^a-z0-9\s]/g, '')   // hapus emoji & simbol
+    .replace(/\s+/g, ' ')           // collapse spasi
+    .trim();
+}
+
+function hasEmoji(text) {
+  return /[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}]/u.test(text);
+}
+
+function pickBestDisplay(existing, candidate) {
+  if (!existing) return candidate;
+  if (!candidate) return existing;
+  const exEmoji = hasEmoji(existing);
+  const canEmoji = hasEmoji(candidate);
+  if (canEmoji && !exEmoji) return candidate;
+  if (exEmoji && !canEmoji) return existing;
+  if (candidate.length > existing.length) return candidate;
+  if (existing.length > candidate.length) return existing;
+  return candidate;
+}
+
 function app() {
   return {
     /* --- State --- */
@@ -230,23 +256,34 @@ function app() {
     addItem() {
       const trimmed = this.newItem.trim();
       if (!trimmed) return;
-      const { doc, setDoc } = window.FirebaseHelpers;
-      const docRef = doc(window.FirebaseHelpers.db, 'days', this.selectedDate);
-      const newItem = {
-        id: Date.now(),
-        text: trimmed,
-        done: false
-      };
-      const updated = [...this.checklist, newItem];
-      this._localUpdating = true;
-      this.checklist = updated; // update lokal dulu → langsung muncul di UI
-      setDoc(docRef, { checklist: updated }, { merge: true }).then(() => {
-        this._localUpdating = false;
+
+      // Cari canonical version dari catalog
+      const { getDoc, doc } = window.FirebaseHelpers;
+      const key = normalizeKey(trimmed);
+      getDoc(doc(window.FirebaseHelpers.db, 'catalog', key)).then((snap) => {
+        const displayText = snap && snap.exists ? snap.data().text : trimmed;
+
+        const { doc: doc2, setDoc } = window.FirebaseHelpers;
+        const docRef = doc2(window.FirebaseHelpers.db, 'days', this.selectedDate);
+        const newItem = {
+          id: Date.now(),
+          text: displayText,
+          done: false
+        };
+        const updated = [...this.checklist, newItem];
+        this._localUpdating = true;
+        this.checklist = updated;
+        setDoc(docRef, { checklist: updated }, { merge: true }).then(() => {
+          this._localUpdating = false;
+        }).catch(() => {
+          this._localUpdating = false;
+        });
+        this.newItem = '';
+        this.saveToCatalog(trimmed);
       }).catch(() => {
-        this._localUpdating = false;
+        // fallback: simpan apa adanya
+        this.saveToCatalog(trimmed);
       });
-      this.newItem = '';
-      this.saveToCatalog(trimmed); // simpan ke katalog
     },
 
     toggleItem(idx) {
@@ -328,24 +365,18 @@ function app() {
 
     // Simpan item ke katalog otomatis waktu ditambah
     saveToCatalog(itemText) {
-      const { getDoc, doc, setDoc, serverTimestamp } = window.FirebaseHelpers;
-      const catRef = doc(window.FirebaseHelpers.db, 'catalog', itemText.toLowerCase().trim());
+      const { getDoc, doc, setDoc } = window.FirebaseHelpers;
+      const key = normalizeKey(itemText);
+      if (!key) return;
+      const catRef = doc(window.FirebaseHelpers.db, 'catalog', key);
 
       getDoc(catRef).then((snap) => {
-        if (snap.exists) {
-          const data = snap.data();
-          setDoc(catRef, {
-            count: (data.count || 0) + 1,
-            lastUsed: new Date().toISOString().split('T')[0],
-            text: itemText.trim()
-          }, { merge: true });
-        } else {
-          setDoc(catRef, {
-            count: 1,
-            lastUsed: new Date().toISOString().split('T')[0],
-            text: itemText.trim()
-          });
-        }
+        const canonicalText = pickBestDisplay(snap.exists ? snap.data().text : null, itemText.trim());
+        setDoc(catRef, {
+          count: (snap.exists ? snap.data().count : 0) + 1,
+          lastUsed: new Date().toISOString().split('T')[0],
+          text: canonicalText
+        });
       }).catch((err) => console.warn('Katalog save error:', err));
     },
 
@@ -413,26 +444,26 @@ function app() {
         // Prioritaskan barang dari 7 hari terakhir (paling baru dulu)
         recentDays.forEach(day => {
           day.items.forEach(text => {
-            const t = text.trim();
-            if (t && !seen.has(t.toLowerCase())) {
-              seen.add(t.toLowerCase());
-              result.push({ text: t, type: day.dayName, date: day.date });
+            const key = normalizeKey(text);
+            if (key && !seen.has(key)) {
+              seen.add(key);
+              result.push({ text: text.trim(), type: day.dayName, date: day.date });
             }
           });
         });
 
         // Tambah favorit yang belum ada
         favorites.forEach(text => {
-          const t = text.trim();
-          if (t && !seen.has(t.toLowerCase())) {
-            seen.add(t.toLowerCase());
-            result.push({ text: t, type: 'favorit', date: null });
+          const key = normalizeKey(text);
+          if (key && !seen.has(key)) {
+            seen.add(key);
+            result.push({ text: text.trim(), type: 'favorit', date: null });
           }
         });
 
-        // Cek & sisihkan yg udah ada di checklist hari ini
-        const existing = new Set(this.checklist.map(i => i.text.toLowerCase()));
-        this.suggestions = result.filter(s => !existing.has(s.text.toLowerCase()));
+        // Cek & sisihkan yg udah ada di checklist hari ini (pakai normalizeKey juga)
+        const existing = new Set(this.checklist.map(i => normalizeKey(i.text)));
+        this.suggestions = result.filter(s => !existing.has(normalizeKey(s.text)));
 
         this.loadingSuggestions = false;
       }).catch(() => {
@@ -444,24 +475,35 @@ function app() {
     addSuggestion(text) {
       const trimmed = text.trim();
       if (!trimmed) return;
-      const { doc, setDoc } = window.FirebaseHelpers;
-      const docRef = doc(window.FirebaseHelpers.db, 'days', this.selectedDate);
-      const newItem = {
-        id: Date.now(),
-        text: trimmed,
-        done: false
-      };
-      const updated = [...this.checklist, newItem];
-      this._localUpdating = true;
-      this.checklist = updated;
-      setDoc(docRef, { checklist: updated }, { merge: true }).then(() => {
-        this._localUpdating = false;
+
+      // Cari canonical version dari catalog
+      const { getDoc, doc } = window.FirebaseHelpers;
+      const key = normalizeKey(trimmed);
+      getDoc(doc(window.FirebaseHelpers.db, 'catalog', key)).then((snap) => {
+        const displayText = snap && snap.exists ? snap.data().text : trimmed;
+
+        const { doc: doc2, setDoc } = window.FirebaseHelpers;
+        const docRef = doc2(window.FirebaseHelpers.db, 'days', this.selectedDate);
+        const newItem = {
+          id: Date.now(),
+          text: displayText,
+          done: false
+        };
+        const updated = [...this.checklist, newItem];
+        this._localUpdating = true;
+        this.checklist = updated;
+        setDoc(docRef, { checklist: updated }, { merge: true }).then(() => {
+          this._localUpdating = false;
+        }).catch(() => {
+          this._localUpdating = false;
+        });
+        // Hapus dari suggestions berdasarkan normalizeKey
+        const nk = normalizeKey(text);
+        this.suggestions = this.suggestions.filter(s => normalizeKey(s.text) !== nk);
+        this.saveToCatalog(text);
       }).catch(() => {
-        this._localUpdating = false;
+        this.saveToCatalog(trimmed);
       });
-      // Hapus dari suggestions
-      this.suggestions = this.suggestions.filter(s => s.text.toLowerCase() !== text.toLowerCase());
-      this.saveToCatalog(text);
     },
 
     logout() {
