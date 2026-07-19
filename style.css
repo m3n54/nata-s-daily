@@ -292,8 +292,23 @@ body {
   opacity: 0;
 }
 .item-row:hover .btn-del,
-.schedule-row:hover .btn-del { opacity: 1; }
+.schedule-row:hover .btn-del,
+.schedule-row:hover .btn-edit { opacity: 1; }
 .btn-del:hover { color: #e74c3c; background: #fde8e8; }
+
+/* --- EDIT BUTTON ON SCHEDULE --- */
+.btn-edit {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition: var(--transition);
+  opacity: 0;
+}
+.btn-edit:hover { color: var(--accent); background: #e4f5ef; }
 
 /* --- ADD FORM --- */
 .add-form {
@@ -976,6 +991,25 @@ canvas.confetti-canvas { pointer-events: none !important; }
 }
 .copy-form .btn-primary {
   width: 100%;
+}
+
+/* ====== EDIT SCHEDULE MODAL ====== */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.edit-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+.edit-input {
+  width: 100%;
+  font-size: 0.95rem !important;
 }
 
 /* ====== RESPONSIVE TWEAKS ====== */

@@ -198,6 +198,7 @@
                     <span class="sched-note" x-text="item.note"></span>
                   </template>
                 </div>
+                <button class="btn-edit" @click="openEditSchedule(idx)" title="Edit">✎</button>
                 <button class="btn-del" @click="deleteSchedule(idx)" title="Hapus">✕</button>
               </li>
             </template>
@@ -294,6 +295,34 @@
         <div class="modal-footer">
           <button class="btn-cancel" @click="showCopyModal = false">Batal</button>
         </div>
+      </div>
+    </div>
+
+    <!-- ====== EDIT SCHEDULE MODAL ====== -->
+    <div class="modal-overlay" x-show="showEditModal" x-cloak>
+      <div class="modal modal-sm" @click.outside="showEditModal = false" @keydown.escape="showEditModal = false">
+        <div class="modal-header">
+          <h2>✏️ Edit Jadwal</h2>
+          <button class="modal-close" @click="showEditModal = false">&times;</button>
+        </div>
+        <form class="edit-form" @submit.prevent="saveEditSchedule">
+          <label class="edit-label">
+            Jam
+            <input type="time" x-model="editTime" class="input-time edit-input" required />
+          </label>
+          <label class="edit-label">
+            Kegiatan
+            <input type="text" x-model="editText" class="input-add edit-input" maxlength="200" required />
+          </label>
+          <label class="edit-label">
+            Catatan
+            <input type="text" x-model="editNote" class="input-note edit-input" maxlength="200" placeholder="Catatan (opsional)" />
+          </label>
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" @click="showEditModal = false">Batal</button>
+            <button type="submit" class="btn-primary" :disabled="!editText.trim() || !editTime">💾 Simpan</button>
+          </div>
+        </form>
       </div>
     </div>
 
