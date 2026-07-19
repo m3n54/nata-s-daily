@@ -39,6 +39,11 @@
 </head>
 <body>
 
+  <!-- ====== BACKGROUND VIDEO (muncul di login & main app) ====== -->
+  <video class="bg-video" autoplay muted loop playsinline>
+    <source src="bg.mp4" type="video/mp4" />
+  </video>
+
   <!-- ====== LOGIN OVERLAY ====== -->
   <div class="login-overlay" x-data="loginForm()" x-init="init()" x-show="!$store.auth || !$store.auth.loggedIn" x-cloak>
     <div class="login-card">
