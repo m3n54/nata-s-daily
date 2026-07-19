@@ -30,8 +30,39 @@ body {
   color: var(--text);
   min-height: 100vh;
   padding: 20px 16px 40px;
-  background-image: radial-gradient(circle at 10px 10px, #e8ddd0 0.8px, transparent 0.8px);
-  background-size: 30px 30px;
+  position: relative;
+}
+
+/* Background GIF — full screen, fixed */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('bg.gif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  opacity: 0.3; /* biar nggak terlalu terang */
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Overlay gelap biar teks makin kebaca */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(253, 246, 238, 0.55); /* warna background dengan transparansi */
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Semua konten di atas background */
+.app-wrap,
+.login-overlay {
+  position: relative;
+  z-index: 1;
 }
 
 .app-wrap {

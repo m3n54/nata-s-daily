@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video to GIF 🎬→🎞️</title>
+  <style>
+    :root {
+      --bg: #fdf6ee;
+      --card: #fffffffa;
+      --primary: #f06a7a;
+      --accent: #7fc7b6;
+      --text: #3d2c2a;
+      --text-light: #8a7671;
+      --border: #f0d5d0;
+      --radius: 20px;
+      --shadow: 0 4px 14px rgba(0,0,0,0.04);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px 28px;
+      max-width: 560px;
+      width: 100%;
+      border: 1.5px solid var(--border);
+      text-align: center;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 4px;
+    }
+    .sub {
+      color: var(--text-light);
+      margin-bottom: 24px;
+      font-size: 0.9rem;
+    }
+
+    /* Upload area */
+    .dropzone {
+      border: 2.5px dashed var(--border);
+      border-radius: 16px;
+      padding: 40px 20px;
+      cursor: pointer;
+      transition: 0.25s;
+      background: #faf5f0;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--primary);
+      background: var(--primary-light, #fce4e6);
+    }
+    .dropzone-icon { font-size: 3rem; margin-bottom: 8px; }
+    .dropzone-text { font-weight: 600; }
+    .dropzone-hint { font-size: 0.8rem; color: var(--text-light); margin-top: 4px; }
+    .dropzone input { display: none; }
+
+    /* Video preview */
+    #preview { width: 100%; border-radius: 12px; margin: 16px 0; display: none; }
+
+    /* Options */
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 16px 0;
+      text-align: left;
+    }
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .option-group label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-light);
+    }
+    .option-group input, .option-group select {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: #faf5f0;
+    }
+    .option-group input:focus, .option-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+    }
+
+    /* Button */
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.25s;
+      width: 100%;
+    }
+    .btn:hover { background: #d85a6a; transform: scale(1.01); }
+    .btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+    /* Progress */
+    .progress-wrap {
+      margin: 12px 0;
+      height: 8px;
+      background: #f0e3de;
+      border-radius: 50px;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), #f7a5b0);
+      border-radius: 50px;
+      transition: width 0.3s;
+    }
+
+    #status { font-size: 0.85rem; color: var(--text-light); margin-top: 8px; }
+
+    /* Result */
+    #result { display: none; margin-top: 16px; }
+    #result img {
+      width: 100%;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+    }
+    .btn-download {
+      display: inline-block;
+      background: var(--accent);
+      color: #1f4d42;
+      border: none;
+      border-radius: 50px;
+      padding: 10px 24px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      transition: 0.25s;
+      margin-top: 10px;
+    }
+    .btn-download:hover { background: #6fb9a7; transform: scale(1.02); }
+
+    .file-info {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      margin: 8px 0 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎬 → 🎞️</h1>
+    <p class="sub">Konversi video ke GIF langsung di browser</p>
+
+    <!-- Dropzone -->
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone-icon">📁</div>
+      <div class="dropzone-text">Klik atau drag video ke sini</div>
+      <div class="dropzone-hint">MP4, WebM, MOV — maks 50 MB</div>
+      <input type="file" id="fileInput" accept="video/*" />
+    </div>
+
+    <!-- Preview -->
+    <video id="preview" controls></video>
+
+    <!-- Options -->
+    <div class="options">
+      <div class="option-group">
+        <label for="fps">FPS</label>
+        <select id="fps">
+          <option value="5">5 (hemat)</option>
+          <option value="10" selected>10 (standar)</option>
+          <option value="15">15 (halus)</option>
+          <option value="20">20 (sangat halus)</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label for="width">Lebar (px)</label>
+        <select id="width">
+          <option value="240">240px</option>
+          <option value="320">320px</option>
+          <option value="480" selected>480px</option>
+          <option value="640">640px</option>
+          <option value="720">720px</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Convert Button -->
+    <button class="btn" id="convertBtn" disabled>🔄 Konversi ke GIF</button>
+
+    <!-- Progress -->
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <p id="status"></p>
+
+    <!-- Result -->
+    <div id="result">
+      <p class="file-info" id="fileInfo"></p>
+      <img id="gifResult" alt="GIF hasil" />
+      <br />
+      <a class="btn-download" id="downloadBtn" download="output.gif">💾 Download GIF</a>
+    </div>
+  </div>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressWrap = document.getElementById('progressWrap');
+    const progressBar = document.getElementById('progressBar');
+    const status = document.getElementById('status');
+    const result = document.getElementById('result');
+    const gifResult = document.getElementById('gifResult');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const fileInfo = document.getElementById('fileInfo');
+    const fpsSelect = document.getElementById('fps');
+    const widthSelect = document.getElementById('width');
+
+    let selectedFile = null;
+
+    // Click to upload
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) handleFile(e.target.files[0]);
+    });
+
+    // Drag & drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+
+    function handleFile(file) {
+      if (!file.type.startsWith('video/')) {
+        status.textContent = '❌ File bukan video!';
+        return;
+      }
+      if (file.size > 50 * 1024 * 1024) {
+        status.textContent = '❌ File terlalu besar! Maks 50 MB.';
+        return;
+      }
+      selectedFile = file;
+      const url = URL.createObjectURL(file);
+      preview.src = url;
+      preview.style.display = 'block';
+      convertBtn.disabled = false;
+      status.textContent = `📂 ${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)`;
+      result.style.display = 'none';
+    }
+
+    // CONVERT
+    convertBtn.addEventListener('click', () => {
+      if (!selectedFile) return;
+
+      const fps = parseInt(fpsSelect.value);
+      const maxW = parseInt(widthSelect.value);
+
+      convertBtn.disabled = true;
+      convertBtn.textContent = '⏳ Mengonversi...';
+      progressWrap.style.display = 'block';
+      progressBar.style.width = '0%';
+      status.textContent = 'Memproses...';
+      result.style.display = 'none';
+
+      const video = document.createElement('video');
+      video.muted = true;
+      video.src = URL.createObjectURL(selectedFile);
+      video.currentTime = 0;
+
+      video.onloadedmetadata = () => {
+        const totalDuration = video.duration;
+        const w = Math.min(maxW, video.videoWidth);
+        const h = Math.round((w / video.videoWidth) * video.videoHeight);
+        const frameInterval = 1 / fps;
+        const totalFrames = Math.ceil(totalDuration / frameInterval);
+        let capturedFrames = 0;
+
+        // Canvas untuk capture frame
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+
+        // Kumpulin frame sebagai ImageData
+        const frames = [];
+
+        function captureFrame(time) {
+          return new Promise((resolve) => {
+            video.currentTime = time;
+            video.onseeked = () => {
+              ctx.drawImage(video, 0, 0, w, h);
+              frames.push(ctx.getImageData(0, 0, w, h));
+              capturedFrames++;
+              const pct = Math.min((capturedFrames / totalFrames) * 100, 95);
+              progressBar.style.width = pct + '%';
+              status.textContent = `🎞️ Frame ${capturedFrames}/${totalFrames}`;
+              resolve();
+            };
+          });
+        }
+
+        // Capture semua frame
+        const times = [];
+        for (let t = 0; t < totalDuration; t += frameInterval) {
+          times.push(t);
+        }
+
+        async function processFrames() {
+          for (const t of times) {
+            await captureFrame(t);
+          }
+          // Build GIF
+          buildGIF(frames, w, h, fps);
+        }
+        processFrames();
+      };
+
+      function buildGIF(frames, w, h, fps) {
+        status.textContent = '🔄 Merender GIF...';
+
+        // Gunakan GIFEncoder dari CDN
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js';
+        script.onload = () => {
+          const gif = new GIF({
+            workers: 2,
+            quality: 10,
+            width: w,
+            height: h,
+            workerURL: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
+          });
+
+          frames.forEach((frameData, i) => {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = w;
+            tempCanvas.height = h;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.putImageData(frameData, 0, 0);
+            gif.addFrame(tempCtx, { copy: true, delay: 1000 / fps });
+
+            const pct = 95 + ((i + 1) / frames.length) * 5;
+            progressBar.style.width = Math.min(pct, 100) + '%';
+          });
+
+          gif.on('progress', (p) => {
+            progressBar.style.width = (95 + p * 5) + '%';
+          });
+
+          gif.on('finished', (blob) => {
+            const url = URL.createObjectURL(blob);
+            gifResult.src = url;
+            downloadBtn.href = url;
+            const name = selectedFile.name.replace(/\.[^.]+$/, '') + '.gif';
+            downloadBtn.download = name;
+            fileInfo.textContent = `📦 ${name} — ${(blob.size / 1024).toFixed(0)} KB`;
+            result.style.display = 'block';
+
+            progressBar.style.width = '100%';
+            status.textContent = '✅ Selesai!';
+            convertBtn.disabled = false;
+            convertBtn.textContent = '🔄 Konversi ke GIF';
+          });
+
+          gif.render();
+        };
+        document.head.appendChild(script);
+      }
+    });
+  </script>
+</body>
+</html>
