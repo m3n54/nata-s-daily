@@ -7,16 +7,21 @@ Akses terbatas — hanya bisa digunakan oleh akun yang terdaftar di Firebase Aut
 
 ## ✨ Fitur
 
-- 📋 **Checklist barang & persiapan** — tambah, centang, hapus
+- 📋 **Checklist barang & persiapan** — tambah, centang, hapus, dan saran otomatis
 - ⏰ **Jadwal kegiatan** — atur waktu, catatan opsional
+- ✏️ **Edit jadwal** — ubah jam/kegiatan/catatan setelah dibuat
+- 📋 **Salin jadwal** — copy jadwal dari hari lain
+- 🗂️ **Template jadwal** — template per hari (Senin–Minggu), tinggal terapkan
+- 💡 **Saran barang pintar** — rekomendasi barang dari hari sebelumnya & favoritmu
+- 💡 **Saran jadwal** — rekomendasi jadwal dari hari sebelumnya
+- 🎯 **Normalisasi item** — "TWS", "tws", "TWS🎧" otomatis digabung jadi satu dengan emoji 🎧
 - 💗 **Sync real-time** — perubahan dari HP langsung muncul di device lain
-- 📅 **Navigasi hari** — lihat hari kemarin/besok
+- 📅 **Navigasi hari** — lihat hari kemarin/besok, atau pilih tanggal
 - 🎉 **Confetti** — kalau semua checklist selesai
 - 💌 **Quote harian** — ganti sesuai selera
 - 📆 **Anniversary counter** — hitung hari bersama
 - 💪 **Countdown magang** — sisa hari kerja
 - 🔐 **Login email/password** — hanya pengguna terdaftar yang bisa akses
-- 💡 **Saran barang pintar** — rekomendasi barang dari kemarin & favoritmu
 
 ## 🛠️ Tech Stack
 
@@ -58,8 +63,8 @@ service cloud.firestore {
 
 ### 4. Personalisasi
 
-- **Anniversary**: di `app.js`, cari `new Date('2026-06-28')` → ganti tanggal kalian
-- **Quotes**: di `app.js`, array `QUOTES` → tulis quotes sendiri
+- **Anniversary**: di `js/main.js`, cari `new Date('2026-06-28')` → ganti tanggal kalian
+- **Quotes**: di `js/utils.js`, array `QUOTES` → tulis quotes sendiri
 - **Warna**: CSS variables di `style.css` (`--primary`, `--accent`, dll)
 
 ### 5. Deploy GitHub Pages
@@ -76,16 +81,27 @@ Repo → **Settings** → **Pages** → Source: `main` → `/root`
 
 ```
 daily-app/
-├── index.html      → Halaman utama + login
-├── style.css       → Gaya visual
-├── app.js          → Logika + Firebase
-├── firestore.rules → Aturan keamanan database
-├── manifest.json   → PWA config
-└── README.md       → Panduan ini
+├── index.html               → Halaman utama + login
+├── style.css                → Gaya visual
+├── firestore.rules          → Aturan keamanan database
+├── manifest.json            → PWA config
+├── README.md                → Panduan ini
+└── js/
+    ├── utils.js             → Utility (normalizeKey, emoji, quotes)
+    ├── catalog.js           → Katalog barang favorit
+    ├── suggestions.js       → Saran barang & persiapan
+    ├── schedule.js          → CRUD jadwal (tambah, hapus, edit)
+    ├── schedule-suggestions.js → Saran jadwal dari hari sebelumnya
+    ├── templates.js         → Template jadwal per hari
+    ├── copy.js              → Salin jadwal dari tanggal lain
+    └── main.js              → Komponen utama Alpine (gabung semua modul)
 ```
+
+> 💡 Setiap fitur dipisah ke file sendiri — mudah dicari, ditambah, atau diubah.
 
 ## 💡 Tips
 
 - Buka di 2 device → login akun masing-masing → coba tambah item → lihat sync
 - Data per hari disimpan terpisah (ID = tanggal)
 - Free tier Firebase cukup untuk berdua seumur hidup ✨
+- Normalisasi item otomatis: cukup tulis "tws" → otomatis jadi "TWS🎧" kalau itu versi terbaiknya
