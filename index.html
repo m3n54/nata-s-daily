@@ -331,6 +331,97 @@
       </div>
     </div>
 
+    <!-- ====== INSPIRATION POPUP MODAL ====== -->
+    <div class="modal-overlay" x-show="showInspirationPopup" x-cloak
+         x-transition:enter.opacity.duration.300ms
+         x-transition:leave.opacity.duration.200ms>
+      <div class="modal inspiration-modal"
+           @click.outside="closeInspiration()"
+           @keydown.escape="closeInspiration()"
+           x-transition:enter.scale.90.duration.300ms
+           x-transition:leave.scale.90.duration.200ms>
+        <div class="inspiration-content">
+          <template x-if="currentInspiration && currentInspiration.imageUrl">
+            <div class="insp-image-wrap">
+              <img :src="currentInspiration.imageUrl" alt="Ilustrasi" class="insp-image"
+                   @error="$el.style.display='none'" />
+            </div>
+          </template>
+          <div class="insp-text-wrap">
+            <p class="insp-icon">💬</p>
+            <p class="insp-text" x-text="currentInspiration ? currentInspiration.text : ''"></p>
+          </div>
+        </div>
+        <div class="insp-actions">
+          <button class="btn-insp-another" @click="showRandomInspiration()">🎲 Quote lain</button>
+          <button class="btn-insp-close" @click="closeInspiration()">✕ Tutup</button>
+        </div>
+        <div class="insp-edit-link">
+          <button class="btn-insp-manage" @click="closeInspiration(); openManageInspirations()">✏️ Atur kata semangat</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== MANAGE INSPIRATIONS MODAL ====== -->
+    <div class="modal-overlay" x-show="showManageInspirations" x-cloak>
+      <div class="modal"
+           @click.outside="closeManageInspirations()"
+           @keydown.escape="closeManageInspirations()">
+        <div class="modal-header">
+          <h2>💬 Atur Kata Semangat</h2>
+          <button class="modal-close" @click="closeManageInspirations()">&times;</button>
+        </div>
+
+        <!-- Add form -->
+        <form class="insp-form" @submit.prevent="addInspiration">
+          <div class="insp-form-group">
+            <label class="insp-label">Kata semangat <span class="insp-req">*</span></label>
+            <textarea x-model="newInspText" class="insp-textarea" placeholder="Tulis kata semangat..." maxlength="300" required></textarea>
+          </div>
+          <div class="insp-form-group">
+            <label class="insp-label">URL Gambar <span class="insp-opt">(opsional)</span></label>
+            <input type="url" x-model="newInspImageUrl" class="insp-input" placeholder="https://...gambar.jpg" />
+            <template x-if="newInspImageUrl">
+              <div class="insp-preview-wrap">
+                <img :src="newInspImageUrl" class="insp-preview-img"
+                     @error="$el.style.display='none'" />
+              </div>
+            </template>
+          </div>
+          <button type="submit" class="btn-primary insp-submit" :disabled="!newInspText.trim()">💾 Simpan</button>
+        </form>
+
+        <div class="insp-divider"></div>
+
+        <!-- List -->
+        <p class="insp-list-title">Kata semangat tersimpan</p>
+        <div class="insp-list" x-show="inspirationsList.length > 0">
+          <template x-for="insp in inspirationsList" :key="insp.id">
+            <div class="insp-item">
+              <div class="insp-item-body">
+                <span class="insp-item-text" x-text="insp.text"></span>
+                <span class="insp-item-img-hint" x-show="insp.imageUrl" title="Ada gambar">🖼️</span>
+              </div>
+              <button class="btn-del" @click="deleteInspiration(insp.id)" title="Hapus">✕</button>
+            </div>
+          </template>
+        </div>
+        <div class="empty-state" x-show="inspirationsList.length === 0">
+          <p>Belum ada kata semangat 🕊️</p>
+          <p class="small-hint">Tambah di atas ya!</p>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="closeManageInspirations()">Selesai</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== FLOATING INSPIRATION BUTTON ====== -->
+    <button class="float-insp-btn" @click="showManualInspiration()" title="Kata semangat 💬">
+      💬
+    </button>
+
   </div>
 
   <!-- ====== Firebase (CDN non-ESM — compatible with Alpine.js) ====== -->
@@ -465,6 +556,7 @@
   <script src="js/templates.js?v=1"></script>
   <script src="js/schedule-suggestions.js?v=1"></script>
   <script src="js/copy.js?v=1"></script>
+  <script src="js/inspirations.js?v=1"></script>
   <script src="js/main.js?v=1"></script>
 </body>
 </html>

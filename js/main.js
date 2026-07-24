@@ -53,6 +53,14 @@ function app() {
     scheduleSuggestions: [],
     loadingSchedSuggestions: false,
 
+    /* --- Inspiration state --- */
+    showInspirationPopup: false,
+    currentInspiration: null,
+    showManageInspirations: false,
+    inspirationsList: [],
+    newInspText: '',
+    newInspImageUrl: '',
+
     /* --- Init & Lifecycle --- */
     init() {
       console.log('App Alpine initialization...');
@@ -61,6 +69,16 @@ function app() {
       this.anniversaryDays = this.calculateAnniversary();
       this.internship = this.calculateInternshipCountdown();
       this.waitForFirebase();
+
+      // Cek apakah perlu tampilkan popup inspirasi hari ini (setelah Firebase ready)
+      const checkInsp = () => {
+        if (window.FIREBASE_READY) {
+          this.checkDailyInspiration();
+        } else {
+          window.addEventListener('firebase-ready', () => this.checkDailyInspiration(), { once: true });
+        }
+      };
+      checkInsp();
     },
 
     setToday() {
@@ -322,5 +340,6 @@ function app() {
     ...DailyApp.templates,
     ...DailyApp.schedSuggestions,
     ...DailyApp.copy,
+    ...DailyApp.inspirations,
   };
 }

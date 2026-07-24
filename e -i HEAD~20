@@ -1,0 +1,10 @@
+[33m08814fc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m fix: video background fit vertikal + gradient samping
+[33m1cdbc7e[m fix: ganti background dari GIF (6.5MB) ke MP4 (1.6MB)
+[33mdeb63ee[m fix: force refresh CSS cache — bump style.css?v=2 untuk laptop
+[33mfb944e5[m feat: background GIF animasi (Vid_opt.gif) dengan overlay bening
+[33mac9d931[m docs: update README dengan fitur & struktur baru
+[33mc6794e4[m refactor: pisahkan app.js ke modul terpisah di folder js/
+[33me921ffe[m feat: edit jadwal kegiatan - ubah jam/kegiatan/catatan setelah dibuat
+[33m3aa443d[m feat: normalisasi barang & persiapan - gabung TWS/TWS🎧/tws jadi satu entitas
+[33m7e5a91d[m fix: bump cache buster v11→v12 (getFavoriteItems masih versi lama di cache)
+[33m79ec891[m fix: restore getFavoriteItems() hilang saat replace blok
