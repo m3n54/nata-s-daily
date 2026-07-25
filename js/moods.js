@@ -1,31 +1,13 @@
 /* ============================================================
    moods.js — Mood tracker harian & weekly recap
-   collection Firestore: days/{dateId}.moods
+   All Alpine state (moods, showWeeklyRecap, MOOD_LIST, etc.)
+   is declared in main.js. This file only provides methods.
    ============================================================ */
 
 window.DailyApp = window.DailyApp || {};
 DailyApp.moods = {
-  /* --- Mood definitions (10 moods, positive → neutral → negative) --- */
-  MOOD_LIST: [
-    { key: 'happy',    emoji: '😊',  label: 'Happy' },
-    { key: 'love',     emoji: '🥰',  label: 'Love' },
-    { key: 'excited',  emoji: '🎉',  label: 'Excited' },
-    { key: 'motivated',emoji: '💪',  label: 'Motivated' },
-    { key: 'grateful', emoji: '🤗',  label: 'Grateful' },
-    { key: 'meh',      emoji: '😐',  label: 'Meh' },
-    { key: 'tired',    emoji: '😴',  label: 'Tired' },
-    { key: 'anxious',  emoji: '😰',  label: 'Anxious' },
-    { key: 'sad',      emoji: '😢',  label: 'Sad' },
-    { key: 'angry',    emoji: '😡',  label: 'Angry' },
-  ],
 
-  /* --- State --- */
-  moods: {},
-  showWeeklyRecap: false,
-  weeklyRecapData: null,
-  weeklyRecapLoading: false,
-
-  /* --- Computed helpers (methods karena getter nggak bisa di-spread ke Alpine) --- */
+  /* --- Computed helpers --- */
 
   // Total mood count for today
   calcMoodTotal() {

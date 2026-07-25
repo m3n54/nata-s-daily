@@ -85,6 +85,26 @@ function app() {
     newInspText: '',
     newInspImageUrl: '',
 
+    /* --- Mood Tracker state --- */
+    moods: {},
+    showWeeklyRecap: false,
+    weeklyRecapData: null,
+    weeklyRecapLoading: false,
+    MOOD_LIST: [
+      { key: 'happy',    emoji: '😊',  label: 'Happy' },
+      { key: 'love',     emoji: '🥰',  label: 'Love' },
+      { key: 'excited',  emoji: '🎉',  label: 'Excited' },
+      { key: 'motivated',emoji: '💪',  label: 'Motivated' },
+      { key: 'grateful', emoji: '🤗',  label: 'Grateful' },
+      { key: 'meh',      emoji: '😐',  label: 'Meh' },
+      { key: 'tired',    emoji: '😴',  label: 'Tired' },
+      { key: 'anxious',  emoji: '😰',  label: 'Anxious' },
+      { key: 'sad',      emoji: '😢',  label: 'Sad' },
+      { key: 'angry',    emoji: '😡',  label: 'Angry' },
+    ],
+    newInspText: '',
+    newInspImageUrl: '',
+
     /* --- Init & Lifecycle --- */
     init() {
       /* --- Dark mode init --- */
