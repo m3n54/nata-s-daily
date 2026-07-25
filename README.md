@@ -15,6 +15,11 @@ Akses terbatas — hanya bisa digunakan oleh akun yang terdaftar di Firebase Aut
 - 💡 **Saran barang pintar** — rekomendasi barang dari hari sebelumnya & favoritmu
 - 💡 **Saran jadwal** — rekomendasi jadwal dari hari sebelumnya
 - 🎯 **Normalisasi item** — "TWS", "tws", "TWS🎧" otomatis digabung jadi satu dengan emoji 🎧
+- 💬 **Kata semangat (Inspirasi)** — popup motivasi harian dengan gambar, muncul otomatis tiap hari
+- ✏️ **Atur kata semangat sendiri** — tambah/edit/hapus kata-kata semangat & gambar kustom
+- 🎲 **Quote lain** — tombol acak quote baru di popup inspirasi
+- 🖼️ **Background video** — video estetik sebagai latar dengan overlay gradient
+- 🌤️ **Sapaan otomatis** — judul berubah "Selamat pagi/siang/sore/malam" sesuai jam
 - 💗 **Sync real-time** — perubahan dari HP langsung muncul di device lain
 - 📅 **Navigasi hari** — lihat hari kemarin/besok, atau pilih tanggal
 - 🎉 **Confetti** — kalau semua checklist selesai
@@ -85,6 +90,7 @@ daily-app/
 ├── style.css                → Gaya visual
 ├── firestore.rules          → Aturan keamanan database
 ├── manifest.json            → PWA config
+├── bg.mp4                   → Background video estetik
 ├── README.md                → Panduan ini
 └── js/
     ├── utils.js             → Utility (normalizeKey, emoji, quotes)
@@ -94,6 +100,7 @@ daily-app/
     ├── schedule-suggestions.js → Saran jadwal dari hari sebelumnya
     ├── templates.js         → Template jadwal per hari
     ├── copy.js              → Salin jadwal dari tanggal lain
+    ├── inspirations.js      → Kata semangat & gambar (custom quotes)
     └── main.js              → Komponen utama Alpine (gabung semua modul)
 ```
 
