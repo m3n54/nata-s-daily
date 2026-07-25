@@ -819,17 +819,11 @@ body::after {
 .login-btn:hover { background: #d85a6a; transform: scale(1.02); }
 .login-btn:disabled { opacity: 0.6; cursor: default; }
 
-/* --- HEADER TOP ACTIONS (theme toggle + logout) --- */
-.header-top-actions {
+/* --- THEME TOGGLE (top left, away from logout) --- */
+.btn-theme {
   position: absolute;
   top: 0;
-  right: 0;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.btn-theme {
+  left: 0;
   background: none;
   border: 2px solid var(--border);
   border-radius: 50%;

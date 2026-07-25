@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd ~/daily-app && git *)",
+      "Bash(git *)"
+    ]
+  }
+}

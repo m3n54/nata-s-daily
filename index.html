@@ -22,6 +22,7 @@
       }
     })();
   </script>
+
   <!-- Definisi store auth — inline script jalan setelah Alpine.js di-load -->
   <script>
     document.addEventListener('alpine:init', () => {
@@ -93,12 +94,10 @@
         🎉 <span>Magang selesai! Selamattt!</span> 🎉
       </div>
 
-      <div class="header-top-actions">
-        <button class="btn-theme" @click="toggleDark" title="Ganti tema" x-show="$store.auth.loggedIn">
-          <span x-text="darkMode ? '☀️' : '🌙'"></span>
-        </button>
-        <button class="btn-logout" @click="logout" x-show="$store.auth.loggedIn" title="Logout">🚪</button>
-      </div>
+      <button class="btn-theme" @click="toggleDark" title="Ganti tema" x-show="$store.auth.loggedIn">
+        <span x-text="darkMode ? '☀️' : '🌙'"></span>
+      </button>
+      <button class="btn-logout" @click="logout" x-show="$store.auth.loggedIn" title="Logout">🚪</button>
 
       <h1 class="title" x-text="greeting"></h1>
       <p class="subtitle" x-text="dateStr + ' — ' + dayName"></p>
@@ -446,8 +445,7 @@
 
   <!-- ====== Firebase init config ====== -->
   <script>
-    // 🔥 GANTI dengan config dari Firebase Console kamu!
-    // Project Settings → General → Your apps → Firebase SDK snippet → Config
+    // ganti dengan config dari Firebase Console kamu!
     const firebaseConfig = {
       apiKey: "AIzaSyDqQCm6gV-jd5dyTKdc9BXmZKuzPPolbF8",
       authDomain: "nata-s-daily.firebaseapp.com",
@@ -461,7 +459,6 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Email/Password auth — form login dulu baru bisa pakai
     let firebaseReady = false;
     function setReady() {
       firebaseReady = true;
@@ -470,38 +467,29 @@
       window.dispatchEvent(new CustomEvent('firebase-ready'));
     }
 
-    // Alpine store global — biar tau status login di semua komponen
-
-    // Login function — dipanggil dari form
     window.loginWithEmail = function(email, password) {
       return auth.signInWithEmailAndPassword(email, password);
     };
 
-    // Logout function
     window.logoutUser = function() {
       return auth.signOut();
     };
 
-    // Pantau status auth
-    // Note: Bisa kepanggil SEBELUM Alpine.init(). Maka kita simpan statusnya dulu.
     window.__authUser = null;
     auth.onAuthStateChanged(function(user) {
       window.__authUser = user;
       if (user) {
-        console.log('✅ Firebase auth OK — uid:', user.uid);
         if (typeof Alpine !== 'undefined' && Alpine.store('auth')) {
           Alpine.store('auth').setLoggedIn(user);
         }
         setReady();
       } else {
-        console.log('⏳ Menunggu login...');
         if (typeof Alpine !== 'undefined' && Alpine.store('auth')) {
           Alpine.store('auth').setLoggedOut();
         }
       }
     });
 
-    // Bridge supaya app.js bisa pakai API v9-style (compat)
     window.FirebaseHelpers = {
       db: db,
       auth: auth,
@@ -524,6 +512,7 @@
       }
     };
   </script>
+
   <!-- ====== Login form Alpine component ====== -->
   <script>
     function loginForm() {
@@ -534,7 +523,6 @@
         loading: false,
 
         init() {
-          // Reset form state setiap kali overlay muncul
           this.email = '';
           this.password = '';
           this.error = '';
@@ -550,11 +538,11 @@
             .catch((err) => {
               this.loading = false;
               if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-                this.error = 'Email atau password salah 💔';
+                this.error = 'Email atau password salah';
               } else if (err.code === 'auth/invalid-email') {
-                this.error = 'Format email tidak valid 😔';
+                this.error = 'Format email tidak valid';
               } else if (err.code === 'auth/too-many-requests') {
-                this.error = 'Terlalu banyak percobaan. Coba lagi nanti ya 🙏';
+                this.error = 'Terlalu banyak percobaan. Coba lagi nanti ya';
               } else {
                 this.error = 'Login gagal: ' + err.message;
               }
@@ -563,7 +551,8 @@
       };
     }
   </script>
-  <!-- ====== Modul-modul JS (split dari app.js) ====== -->
+
+  <!-- ====== Modul-modul JS ====== -->
   <script src="js/utils.js?v=1"></script>
   <script src="js/catalog.js?v=1"></script>
   <script src="js/suggestions.js?v=1"></script>
