@@ -124,6 +124,48 @@
 
     <!-- ====== MAIN CONTENT (2 columns on desktop) ====== -->
     <template x-if="!loading">
+
+      <!-- ====== MOOD TRACKER ====== -->
+      <section class="card mood-card">
+        <div class="card-header">
+          <h2>😊 Mood Hari Ini</h2>
+          <template x-if="calcMoodTotal() > 0">
+            <span class="badge mood-total-badge" x-text="calcMoodTotal() + 'x'"></span>
+          </template>
+        </div>
+
+        <!-- Mood buttons grid -->
+        <div class="mood-grid">
+          <template x-for="m in MOOD_LIST" :key="m.key">
+            <button class="mood-btn" :class="{ 'mood-active': (moods[m.key] || 0) > 0 }" @click="incrementMood(m.key)">
+              <span class="mood-emoji" x-text="m.emoji"></span>
+              <span class="mood-label" x-text="m.label"></span>
+              <span class="mood-count" x-show="(moods[m.key] || 0) > 0" x-text="moods[m.key]"></span>
+            </button>
+          </template>
+        </div>
+
+        <!-- Daily recap -->
+        <template x-if="calcMoodTotal() > 0">
+          <div class="mood-daily-recap">
+            <p class="mood-recap-title">📋 Total hari ini:</p>
+            <div class="mood-recap-list">
+              <template x-for="m in calcActiveMoods()" :key="m.key">
+                <span class="mood-recap-item">
+                  <span x-text="m.emoji"></span>
+                  <span x-text="m.count + 'x'"></span>
+                  <span class="mood-recap-label" x-text="m.label"></span>
+                </span>
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <!-- Weekly recap link -->
+        <button class="mood-weekly-btn" @click="openWeeklyRecap()">
+          📊 Lihat recap minggu ini
+        </button>
+      </section>
       <div class="two-col">
 
         <!-- ====== LEFT: CHECKLIST ====== -->
@@ -347,6 +389,90 @@
       </div>
     </div>
 
+    <!-- ====== WEEKLY RECAP MODAL ====== -->
+    <div class="modal-overlay" x-show="showWeeklyRecap" x-cloak>
+      <div class="modal recap-modal" @click.outside="closeWeeklyRecap()" @keydown.escape="closeWeeklyRecap()">
+        <div class="modal-header">
+          <h2>📊 Recap Mood Minggu Ini</h2>
+          <button class="modal-close" @click="closeWeeklyRecap()">&times;</button>
+        </div>
+
+        <template x-if="weeklyRecapLoading">
+          <div class="recap-loading">Menghitung perasaanmu... 💭</div>
+        </template>
+
+        <template x-if="!weeklyRecapLoading && weeklyRecapData">
+          <template x-if="weeklyRecapData.grandTotal === 0">
+            <div class="recap-empty">
+              <p>Belum ada mood minggu ini 🕊️</p>
+              <p class="small-hint">Coba pencet emoticon di atas setiap hari!</p>
+            </div>
+          </template>
+
+          <template x-if="weeklyRecapData.grandTotal > 0">
+            <div class="recap-content">
+              <!-- Dominant mood -->
+              <div class="recap-dominant">
+                <span class="recap-dominant-label">Minggu ini kamu paling sering</span>
+                <span class="recap-dominant-mood">
+                  <span x-text="weeklyRecapData.dominant.emoji"></span>
+                  <span x-text="weeklyRecapData.dominant.label"></span>
+                </span>
+                <span class="recap-dominant-count" x-text="'(' + weeklyRecapData.dominant.count + 'x)'"></span>
+              </div>
+
+              <!-- Grand total -->
+              <p class="recap-total">Total <strong x-text="weeklyRecapData.grandTotal + 'x'"></strong> perasaan tercatat minggu ini!</p>
+
+              <!-- Breakdown per mood -->
+              <div class="recap-breakdown">
+                <p class="recap-breakdown-title">Rincian:</p>
+                <div class="recap-breakdown-list">
+                  <template x-for="m in MOOD_LIST" :key="m.key">
+                    <template x-if="(weeklyRecapData.totals[m.key] || 0) > 0">
+                      <div class="recap-bar-row">
+                        <span class="recap-bar-emoji" x-text="m.emoji"></span>
+                        <span class="recap-bar-label" x-text="m.label"></span>
+                        <div class="recap-bar-track">
+                          <div class="recap-bar-fill" :style="'width:' + ((weeklyRecapData.totals[m.key] / weeklyRecapData.grandTotal) * 100) + '%'"></div>
+                        </div>
+                        <span class="recap-bar-count" x-text="weeklyRecapData.totals[m.key] + 'x'"></span>
+                      </div>
+                    </template>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Daily breakdown -->
+              <div class="recap-days">
+                <p class="recap-days-title">Per hari:</p>
+                <template x-for="day in weeklyRecapData.days" :key="day.date">
+                  <div class="recap-day-row">
+                    <span class="recap-day-name" x-text="day.dayName"></span>
+                    <span class="recap-day-moods">
+                      <template x-for="m in MOOD_LIST" :key="m.key">
+                        <template x-if="(day.moods[m.key] || 0) > 0">
+                          <span class="recap-day-mood" :title="m.label + ' ' + day.moods[m.key] + 'x'">
+                            <span x-text="m.emoji"></span>
+                            <span class="recap-day-mood-count" x-text="day.moods[m.key]"></span>
+                          </span>
+                        </template>
+                      </template>
+                    </span>
+                    <span class="recap-day-total" x-text="day.total + 'x'"></span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </template>
+
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="closeWeeklyRecap()">Tutup</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ====== INSPIRATION POPUP MODAL ====== -->
     <div class="modal-overlay" x-show="showInspirationPopup" x-cloak
          x-transition:enter.opacity.duration.300ms
@@ -563,6 +689,7 @@
   <script src="js/schedule-suggestions.js?v=1"></script>
   <script src="js/copy.js?v=1"></script>
   <script src="js/inspirations.js?v=1"></script>
+  <script src="js/moods.js?v=1"></script>
   <script src="js/main.js?v=1"></script>
 </body>
 </html>

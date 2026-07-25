@@ -218,6 +218,7 @@ function app() {
           const data = snap.data();
           this.checklist = data.checklist || [];
           this.schedule = data.schedule || [];
+          this.moods = data.moods || {};
           this.checkPastSchedules();
           this.loading = false;
         } else if (snap) {
@@ -374,5 +375,6 @@ function app() {
     ...DailyApp.schedSuggestions,
     ...DailyApp.copy,
     ...DailyApp.inspirations,
+    ...DailyApp.moods,
   };
 }
