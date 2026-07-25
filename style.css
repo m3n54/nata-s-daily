@@ -22,6 +22,170 @@
   --transition: 0.25s cubic-bezier(.4,0,.2,1);
 }
 
+/* ====== DARK MODE — cozy & cute 🌙 ====== */
+[data-theme="dark"] {
+  --bg: #1a1412;
+  --card-bg: #2b1f1b;
+  --primary: #f07a8a;
+  --primary-light: #3d1f24;
+  --accent: #8fd4c4;
+  --accent2: #c2b0e8;
+  --text: #f0e6dc;
+  --text-light: #b8a69c;
+  --border: #3d2c26;
+  --shadow: 0 4px 14px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] .bg-video {
+  opacity: 0.2;
+}
+
+[data-theme="dark"] body::after {
+  background: linear-gradient(
+    90deg,
+    rgba(26, 20, 18, 0.92) 0%,
+    rgba(26, 20, 18, 0.25) 30%,
+    rgba(26, 20, 18, 0.25) 70%,
+    rgba(26, 20, 18, 0.92) 100%
+  );
+}
+
+@media (max-width: 640px) {
+  [data-theme="dark"] body::after {
+    background: rgba(26, 20, 18, 0.75);
+  }
+  [data-theme="dark"] .bg-video {
+    opacity: 0.15;
+  }
+}
+
+/* Dark mode card adjustments */
+[data-theme="dark"] .card {
+  border-color: #3d2c26;
+}
+[data-theme="dark"] .card-checklist {
+  border-color: #4d2a30;
+}
+[data-theme="dark"] .card-schedule {
+  border-color: #1f3d35;
+}
+
+/* Dark mode countdown */
+[data-theme="dark"] .countdown-card {
+  background: linear-gradient(135deg, #2a1a1c, #1f1412);
+  border-color: #f06a7a55;
+}
+
+/* Dark mode suggestions box */
+[data-theme="dark"] .suggestions {
+  background: #1f1815;
+  border-color: #4d3540;
+}
+
+[data-theme="dark"] .sched-suggestions {
+  background: #1a201e;
+  border-color: #2d4a40;
+}
+
+/* Dark mode inputs */
+[data-theme="dark"] .input-add,
+[data-theme="dark"] .input-note,
+[data-theme="dark"] .input-time,
+[data-theme="dark"] .login-input,
+[data-theme="dark"] .date-picker,
+[data-theme="dark"] .insp-textarea,
+[data-theme="dark"] .insp-input {
+  background: #1f1815;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .input-add:focus,
+[data-theme="dark"] .input-note:focus,
+[data-theme="dark"] .input-time:focus,
+[data-theme="dark"] .login-input:focus,
+[data-theme="dark"] .date-picker:focus,
+[data-theme="dark"] .insp-textarea:focus,
+[data-theme="dark"] .insp-input:focus {
+  background: #2a1f1b;
+}
+
+/* Dark mode schedule row */
+[data-theme="dark"] .schedule-row:hover {
+  background: #1f2825;
+}
+
+[data-theme="dark"] .item-row:hover {
+  background: #221816;
+}
+
+/* Dark mode buttons */
+[data-theme="dark"] .btn-nav {
+  background: #1f1815;
+  color: var(--text);
+  border-color: var(--border);
+}
+[data-theme="dark"] .btn-nav:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+[data-theme="dark"] .suggestion-chip {
+  background: #1f1815;
+  color: var(--text);
+}
+[data-theme="dark"] .suggestion-chip:hover {
+  background: #2d1f1a;
+}
+
+[data-theme="dark"] .sched-suggestion-chip {
+  background: #1a1e1c;
+}
+[data-theme="dark"] .sched-suggestion-chip:hover {
+  background: #1f2d28;
+}
+
+/* Dark mode modal */
+[data-theme="dark"] .modal-overlay {
+  background: rgba(0,0,0,0.6);
+}
+[data-theme="dark"] .modal {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+/* Dark mode template */
+[data-theme="dark"] .template-row:hover {
+  background: #2a2030;
+}
+[data-theme="dark"] .template-tab {
+  background: #1f1815;
+  color: var(--text-light);
+}
+[data-theme="dark"] .template-tab.active {
+  background: var(--accent);
+  color: #1a201e;
+}
+
+/* Dark mode inspiration */
+[data-theme="dark"] .insp-item {
+  background: #1f1815;
+}
+[data-theme="dark"] .insp-item:hover {
+  background: #2d1f24;
+}
+
+/* Dark mode login card */
+[data-theme="dark"] .login-card {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+/* Dark mode quote & footer */
+[data-theme="dark"] .footer-credit {
+  border-top-color: var(--border);
+}
+
 /* --- Reset & Base --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -654,6 +818,39 @@ body::after {
 }
 .login-btn:hover { background: #d85a6a; transform: scale(1.02); }
 .login-btn:disabled { opacity: 0.6; cursor: default; }
+
+/* --- HEADER TOP ACTIONS (theme toggle + logout) --- */
+.header-top-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.btn-theme {
+  background: none;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.btn-theme:hover {
+  border-color: var(--accent2);
+  background: var(--primary-light);
+  transform: rotate(20deg);
+}
+[data-theme="dark"] .btn-theme:hover {
+  background: #3d1f24;
+}
 
 /* --- LOGOUT BUTTON --- */
 .btn-logout {

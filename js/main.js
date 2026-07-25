@@ -56,12 +56,25 @@ function app() {
     /* --- Greeting --- */
     greeting: '',
 
+    /* --- Dark Mode --- */
+    darkMode: false,
+
     setGreeting() {
       const h = new Date().getHours();
       if (h >= 3 && h < 11) this.greeting = 'Selamat pagi ☀️';
       else if (h >= 11 && h < 15) this.greeting = 'Selamat siang 🌤️';
       else if (h >= 15 && h < 18) this.greeting = 'Selamat sore 🌅';
       else this.greeting = 'Selamat malam 🌙';
+    },
+
+    toggleDark() {
+      this.darkMode = !this.darkMode;
+      localStorage.setItem('darkMode', this.darkMode);
+      if (this.darkMode) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
     },
 
     /* --- Inspiration state --- */
@@ -74,6 +87,14 @@ function app() {
 
     /* --- Init & Lifecycle --- */
     init() {
+      /* --- Dark mode init --- */
+      this.darkMode = localStorage.getItem('darkMode') === 'true';
+      if (this.darkMode) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+
       console.log('App Alpine initialization...');
       this.setToday();
       this.dailyQuote = this.randomQuote();
