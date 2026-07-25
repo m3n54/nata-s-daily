@@ -819,31 +819,42 @@ body::after {
 .login-btn:hover { background: #d85a6a; transform: scale(1.02); }
 .login-btn:disabled { opacity: 0.6; cursor: default; }
 
-/* --- THEME TOGGLE (top left, away from logout) --- */
+/* --- THEME TOGGLE (right side, below logout) --- */
 .btn-theme {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 46px;
+  right: 0;
   background: none;
   border: 2px solid var(--border);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 1.2rem;
+  border-radius: 50px;
+  padding: 4px 12px 4px 6px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--text-light);
   cursor: pointer;
   transition: var(--transition);
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 4px;
   line-height: 1;
+  white-space: nowrap;
+}
+.btn-theme-icon {
+  font-size: 1rem;
+}
+.btn-theme-label {
+  letter-spacing: 0.5px;
 }
 .btn-theme:hover {
   border-color: var(--accent2);
   background: var(--primary-light);
-  transform: rotate(20deg);
+  color: var(--text);
+  transform: scale(1.03);
 }
 [data-theme="dark"] .btn-theme:hover {
   background: #3d1f24;
+  color: var(--text);
 }
 
 /* --- LOGOUT BUTTON --- */

@@ -94,10 +94,12 @@
         🎉 <span>Magang selesai! Selamattt!</span> 🎉
       </div>
 
-      <button class="btn-theme" @click="toggleDark" title="Ganti tema" x-show="$store.auth.loggedIn">
-        <span x-text="darkMode ? '☀️' : '🌙'"></span>
-      </button>
       <button class="btn-logout" @click="logout" x-show="$store.auth.loggedIn" title="Logout">🚪</button>
+
+      <button class="btn-theme" @click="toggleDark" title="Ganti tema" x-show="$store.auth.loggedIn">
+        <span class="btn-theme-icon" x-text="darkMode ? '☀️' : '🌙'"></span>
+        <span class="btn-theme-label" x-text="darkMode ? 'TERANG' : 'GELAP'"></span>
+      </button>
 
       <h1 class="title" x-text="greeting"></h1>
       <p class="subtitle" x-text="dateStr + ' — ' + dayName"></p>
