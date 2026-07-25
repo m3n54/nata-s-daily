@@ -138,7 +138,7 @@
         <!-- Mood buttons grid -->
         <div class="mood-grid">
           <template x-for="m in MOOD_LIST" :key="m.key">
-            <button class="mood-btn" :class="{ 'mood-active': (moods[m.key] || 0) > 0 }" @click="incrementMood(m.key)">
+            <button class="mood-btn" :class="{ 'mood-active': (moods[m.key] || 0) > 0, 'mood-dino': m.key === 'dino' }" @click="incrementMood(m.key)">
               <span class="mood-emoji" x-text="m.emoji"></span>
               <span class="mood-label" x-text="m.label"></span>
               <span class="mood-count" x-show="(moods[m.key] || 0) > 0" x-text="moods[m.key]"></span>

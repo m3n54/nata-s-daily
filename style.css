@@ -417,6 +417,57 @@ body::after {
 .mood-btn:active {
   transform: scale(0.92);
 }
+
+/* Special dino button — big & bold 🦖 */
+.mood-btn.mood-dino {
+  border-color: #6b8f5e !important;
+  background: #f0f7e8 !important;
+  min-width: 80px;
+  padding: 8px 12px 6px;
+  position: relative;
+}
+.mood-btn.mood-dino .mood-emoji {
+  font-size: 2rem !important;
+}
+.mood-btn.mood-dino .mood-label {
+  color: #4a7a3a !important;
+  font-size: 0.65rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.3px;
+}
+.mood-btn.mood-dino:hover {
+  border-color: #4a7a3a !important;
+  background: #e4f0d8 !important;
+  transform: translateY(-2px) scale(1.05);
+}
+.mood-btn.mood-dino.mood-active {
+  border-color: #4a7a3a !important;
+  background: #d8ecc8 !important;
+  box-shadow: 0 0 0 3px rgba(74, 122, 58, 0.25) !important;
+  animation: dino-stomp 0.4s ease !important;
+}
+@keyframes dino-stomp {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.15) rotate(-3deg); }
+  70% { transform: scale(0.95) rotate(2deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+[data-theme="dark"] .mood-btn.mood-dino {
+  background: #1f2a18 !important;
+  border-color: #5a7a4a !important;
+}
+[data-theme="dark"] .mood-btn.mood-dino:hover {
+  background: #2a3a20 !important;
+  border-color: #6b9a55 !important;
+}
+[data-theme="dark"] .mood-btn.mood-dino.mood-active {
+  background: #2a3a20 !important;
+  border-color: #7aaa5a !important;
+  box-shadow: 0 0 0 3px rgba(90, 130, 70, 0.3) !important;
+}
+[data-theme="dark"] .mood-btn.mood-dino .mood-label {
+  color: #8aba6a !important;
+}
 .mood-btn.mood-active {
   border-color: #f0c040;
   background: #fdf3d0;

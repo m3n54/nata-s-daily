@@ -96,6 +96,7 @@ function app() {
       { key: 'excited',  emoji: '🎉',  label: 'Excited' },
       { key: 'motivated',emoji: '💪',  label: 'Motivated' },
       { key: 'grateful', emoji: '🤗',  label: 'Grateful' },
+      { key: 'dino',     emoji: '🦖',  label: 'Natasaurus Roarrr' },
       { key: 'meh',      emoji: '😐',  label: 'Meh' },
       { key: 'tired',    emoji: '😴',  label: 'Tired' },
       { key: 'anxious',  emoji: '😰',  label: 'Anxious' },
