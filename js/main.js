@@ -53,6 +53,17 @@ function app() {
     scheduleSuggestions: [],
     loadingSchedSuggestions: false,
 
+    /* --- Greeting --- */
+    greeting: '',
+
+    setGreeting() {
+      const h = new Date().getHours();
+      if (h >= 3 && h < 11) this.greeting = 'Selamat pagi ☀️';
+      else if (h >= 11 && h < 15) this.greeting = 'Selamat siang 🌤️';
+      else if (h >= 15 && h < 18) this.greeting = 'Selamat sore 🌅';
+      else this.greeting = 'Selamat malam 🌙';
+    },
+
     /* --- Inspiration state --- */
     showInspirationPopup: false,
     currentInspiration: null,
@@ -68,6 +79,7 @@ function app() {
       this.dailyQuote = this.randomQuote();
       this.anniversaryDays = this.calculateAnniversary();
       this.internship = this.calculateInternshipCountdown();
+      this.setGreeting();
       this.waitForFirebase();
 
       // Cek apakah perlu tampilkan popup inspirasi hari ini (setelah Firebase ready)

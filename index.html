@@ -85,7 +85,7 @@
 
       <button class="btn-logout" @click="logout" x-show="$store.auth.loggedIn" title="Logout">🚪</button>
 
-      <h1 class="title">☀️ Nata's Daily</h1>
+      <h1 class="title" x-text="greeting + ' ☀️'"></h1>
       <p class="subtitle" x-text="dateStr + ' — ' + dayName"></p>
       <div class="header-actions">
         <button class="btn-date" x-show="todayStr !== selectedDate" @click="goToday()">⬅ Kembali ke hari ini</button>
