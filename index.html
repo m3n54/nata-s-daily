@@ -268,7 +268,10 @@
 
           <!-- add form -->
           <form class="add-form" @submit.prevent="addItem">
-            <input type="text" x-model="newItem" placeholder="Tambah barang atau persiapan..." class="input-add" maxlength="200" name="newItem" id="newItem" />
+            <div class="input-with-emoji">
+              <input type="text" x-model="newItem" placeholder="Tambah barang atau persiapan..." class="input-add" maxlength="200" name="newItem" id="newItem" />
+              <button type="button" class="input-emoji-btn" @click="openEmojiPicker('newItem')" title="Pilih emoji">😊</button>
+            </div>
             <button class="btn-add" :disabled="!newItem.trim()">+</button>
           </form>
 
@@ -327,7 +330,10 @@
           <!-- add schedule -->
           <form class="add-form schedule-form" @submit.prevent="addSchedule">
             <input type="time" x-model="newSchedTime" class="input-time" required name="newSchedTime" id="newSchedTime" />
-            <input type="text" x-model="newSchedText" placeholder="Kegiatan..." class="input-add" maxlength="200" required name="newSchedText" id="newSchedText" />
+            <div class="input-with-emoji">
+              <input type="text" x-model="newSchedText" placeholder="Kegiatan..." class="input-add" maxlength="200" required name="newSchedText" id="newSchedText" />
+              <button type="button" class="input-emoji-btn" @click="openEmojiPicker('newSchedText')" title="Pilih emoji">😊</button>
+            </div>
             <input type="text" x-model="newSchedNote" placeholder="Catatan (opsional)" class="input-note" maxlength="200" name="newSchedNote" id="newSchedNote" />
             <button class="btn-add" :disabled="!newSchedText.trim() || !newSchedTime">+</button>
           </form>
@@ -855,6 +861,6 @@
   <script src="js/moods.js?v=2"></script>
   <script src="js/countdowns.js?v=1"></script>
   <script src="js/emoji-picker.js?v=2"></script>
-  <script src="js/main.js?v=5"></script>
+  <script src="js/main.js?v=6"></script>
 </body>
 </html>
