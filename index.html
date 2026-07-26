@@ -620,7 +620,10 @@
           </label>
           <label class="cd-label">
             Emoji
-            <input type="text" x-model="newCdEmoji" class="cd-input cd-emoji-input" placeholder="🎯" maxlength="4" />
+            <div class="cd-emoji-field">
+              <input type="text" x-model="newCdEmoji" class="cd-input cd-emoji-input" placeholder="🎯" maxlength="4" />
+              <button type="button" class="cd-emoji-btn" @click="openEmojiPicker('newCdEmoji')" title="Pilih emoji">😊</button>
+            </div>
           </label>
           <label class="cd-label">
             Tanggal target
@@ -657,6 +660,43 @@
 
         <div class="modal-footer">
           <button class="btn-cancel" @click="closeCountdownModal()">Selesai</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== EMOJI PICKER MODAL ====== -->
+    <div class="modal-overlay emoji-picker-overlay" x-show="showEmojiPicker" x-cloak>
+      <div class="modal emoji-picker-modal"
+           @click.outside="closeEmojiPicker()"
+           @keydown.escape="closeEmojiPicker()">
+        <div class="modal-header">
+          <h2>😊 Pilih Emoji</h2>
+          <button class="modal-close" @click="closeEmojiPicker()">&times;</button>
+        </div>
+
+        <!-- Search -->
+        <input type="text" x-model="emojiSearch" class="ep-search" placeholder="Cari emoji..." />
+
+        <!-- Categories -->
+        <div class="ep-tabs">
+          <template x-for="cat in emojiCategories" :key="cat">
+            <button class="ep-tab" :class="{ active: emojiActiveCategory === cat }"
+                    @click="emojiActiveCategory = cat; emojiSearch = ''"
+                    x-text="cat"></button>
+          </template>
+        </div>
+
+        <!-- Emoji grid -->
+        <div class="ep-grid-wrap">
+          <div class="ep-grid">
+            <template x-for="emoji in getFilteredEmojis()" :key="emoji">
+              <button class="ep-item" @click="selectEmoji(emoji)" x-text="emoji"
+                      :title="emoji"></button>
+            </template>
+          </div>
+          <div class="ep-empty" x-show="getFilteredEmojis().length === 0">
+            Emoji tidak ditemukan 🕊️
+          </div>
         </div>
       </div>
     </div>
@@ -793,6 +833,7 @@
   <script src="js/inspirations.js?v=1"></script>
   <script src="js/moods.js?v=1"></script>
   <script src="js/countdowns.js?v=1"></script>
-  <script src="js/main.js?v=3"></script>
+  <script src="js/emoji-picker.js?v=1"></script>
+  <script src="js/main.js?v=4"></script>
 </body>
 </html>

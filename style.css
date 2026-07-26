@@ -933,6 +933,157 @@ body::after {
   opacity: 1;
 }
 
+/* ====== EMOJI PICKER ====== */
+.emoji-picker-overlay {
+  z-index: 1000;
+}
+.emoji-picker-modal {
+  max-width: 420px;
+}
+.ep-search {
+  width: 100%;
+  border: 2px solid var(--border);
+  border-radius: 50px;
+  padding: 9px 16px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  background: #faf5f0;
+  transition: var(--transition);
+  margin-bottom: 10px;
+}
+.ep-search:focus {
+  outline: none;
+  border-color: #f0c040;
+  background: white;
+}
+[data-theme="dark"] .ep-search {
+  background: #1f1815;
+  color: var(--text);
+  border-color: var(--border);
+}
+[data-theme="dark"] .ep-search:focus {
+  background: #2a1f1b;
+  border-color: #dbb84a;
+}
+
+.ep-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.ep-tab {
+  flex: 1;
+  min-width: 44px;
+  padding: 5px 2px;
+  border: 1.5px solid var(--border);
+  border-radius: 50px;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-light);
+  background: white;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+.ep-tab:hover {
+  border-color: #f0c040;
+  color: var(--text);
+}
+.ep-tab.active {
+  background: #f0c040;
+  border-color: #f0c040;
+  color: white;
+}
+[data-theme="dark"] .ep-tab {
+  background: #1f1a16;
+  border-color: var(--border);
+}
+[data-theme="dark"] .ep-tab:hover {
+  border-color: #dbb84a;
+  color: var(--text);
+}
+[data-theme="dark"] .ep-tab.active {
+  background: #dbb84a;
+  border-color: #dbb84a;
+  color: #1a1412;
+}
+
+.ep-grid-wrap {
+  max-height: 260px;
+  overflow-y: auto;
+}
+.ep-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.ep-item {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 1.6rem;
+  padding: 4px;
+  cursor: pointer;
+  transition: var(--transition);
+  line-height: 1;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ep-item:hover {
+  background: #fef8e8;
+  border-color: #f0d8b0;
+  transform: scale(1.15);
+}
+[data-theme="dark"] .ep-item:hover {
+  background: #2a2416;
+  border-color: #4d3a28;
+}
+.ep-empty {
+  text-align: center;
+  padding: 20px 0;
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+/* Emoji field with button */
+.cd-emoji-field {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.cd-emoji-btn {
+  background: #fcf9f0;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.cd-emoji-btn:hover {
+  border-color: #f0c040;
+  background: #fef8e8;
+  transform: scale(1.08);
+}
+[data-theme="dark"] .cd-emoji-btn {
+  background: #1f1815;
+  border-color: var(--border);
+}
+[data-theme="dark"] .cd-emoji-btn:hover {
+  background: #2a2416;
+  border-color: #dbb84a;
+}
+
 /* --- Weekly Recap Modal --- */
 .recap-modal {
   max-width: 520px;

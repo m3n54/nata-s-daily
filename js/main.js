@@ -85,6 +85,12 @@ function app() {
     newCdDate: '',
     newCdType: 'countdown',
 
+    /* --- Emoji picker state --- */
+    showEmojiPicker: false,
+    emojiPickerTarget: null,
+    emojiSearch: '',
+    emojiActiveCategory: 'Smiley',
+
     /* --- Inspiration state --- */
     showInspirationPopup: false,
     currentInspiration: null,
@@ -431,5 +437,6 @@ function app() {
     ...DailyApp.inspirations,
     ...DailyApp.moods,
     ...DailyApp.countdowns,
+    ...DailyApp.emojiPicker,
   };
 }
