@@ -17,7 +17,7 @@ DailyApp.moods = {
   // Moods with count > 0, sorted by count desc
   calcActiveMoods() {
     return this.MOOD_LIST
-      .map(m => ({ ...m, count: this.moods[m.key] || 0 }))
+      .map(m => ({ ...m, emoji: this.moodCustomEmojis[m.key] || m.emoji, count: this.moods[m.key] || 0 }))
       .filter(m => m.count > 0)
       .sort((a, b) => b.count - a.count);
   },
@@ -40,6 +40,32 @@ DailyApp.moods = {
     setDoc(docRef, { moods: this.moods }, { merge: true }).catch((err) => {
       console.warn('Gagal simpan mood:', err);
     });
+  },
+
+  /* --- Mood emoji customization --- */
+  initCustomEmojis() {
+    try {
+      const saved = localStorage.getItem('moodCustomEmojis');
+      this.moodCustomEmojis = saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      this.moodCustomEmojis = {};
+    }
+  },
+
+  saveCustomEmoji(key, emoji) {
+    this.moodCustomEmojis[key] = emoji;
+    localStorage.setItem('moodCustomEmojis', JSON.stringify(this.moodCustomEmojis));
+    // Update MOOD_LIST in place
+    const mood = this.MOOD_LIST.find(m => m.key === key);
+    if (mood) mood.emoji = emoji;
+  },
+
+  /* --- Mood emoji picker --- */
+  moodCustomizeKey: null,
+
+  openMoodEmojiPicker(key) {
+    this.moodEmojiPickKey = key;
+    this.openEmojiPicker('emojiSearch');
   },
 
   /* --- Weekly Recap --- */
@@ -94,7 +120,7 @@ DailyApp.moods = {
       this.MOOD_LIST.forEach(m => {
         if ((totals[m.key] || 0) > maxCount) {
           maxCount = totals[m.key];
-          dominant = { ...m, count: maxCount };
+          dominant = { ...m, emoji: this.moodCustomEmojis[m.key] || m.emoji, count: maxCount };
         }
       });
 

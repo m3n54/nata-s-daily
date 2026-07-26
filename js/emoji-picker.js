@@ -57,6 +57,15 @@ DailyApp.emojiPicker = {
 
   /* --- Pilih emoji --- */
   selectEmoji(emoji) {
+    // Jika dalam mode mood customization
+    if (this.moodEmojiPickKey) {
+      this.saveCustomEmoji(this.moodEmojiPickKey, emoji);
+      this.moodEmojiPickKey = null;
+      this.showEmojiPicker = false;
+      this.emojiPickerTarget = null;
+      return;
+    }
+    // Default: isi properti target
     if (this.emojiPickerTarget && this[this.emojiPickerTarget] !== undefined) {
       this[this.emojiPickerTarget] = emoji;
     }

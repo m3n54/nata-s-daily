@@ -133,13 +133,27 @@
           <template x-if="calcMoodTotal() > 0">
             <span class="badge mood-total-badge" x-text="calcMoodTotal() + 'x'"></span>
           </template>
+          <button class="btn-mood-customize" @click="showMoodCustomize = !showMoodCustomize" title="Kustom emoji">🎨</button>
+        </div>
+
+        <!-- Mood emoji customize grid -->
+        <div class="mood-customize-grid" x-show="showMoodCustomize" x-cloak>
+          <template x-for="m in MOOD_LIST" :key="m.key">
+            <div class="mood-customize-item">
+              <span class="mood-customize-label" x-text="m.label"></span>
+              <button class="mood-customize-btn" @click="openMoodEmojiPicker(m.key)">
+                <span x-text="moodCustomEmojis[m.key] || m.emoji"></span>
+              </button>
+            </div>
+          </template>
+          <p class="mood-customize-hint">Klik emoji untuk ganti — tersimpan otomatis 🎨</p>
         </div>
 
         <!-- Mood buttons grid -->
         <div class="mood-grid">
           <template x-for="m in MOOD_LIST" :key="m.key">
             <button class="mood-btn" :class="{ 'mood-active': (moods[m.key] || 0) > 0, 'mood-dino': m.key === 'dino' }" @click="incrementMood(m.key)">
-              <span class="mood-emoji" x-text="m.emoji"></span>
+              <span class="mood-emoji" x-text="moodCustomEmojis[m.key] || m.emoji"></span>
               <span class="mood-label" x-text="m.label"></span>
               <span class="mood-count" x-show="(moods[m.key] || 0) > 0" x-text="moods[m.key]"></span>
             </button>
@@ -534,7 +548,7 @@
             </div>
           </template>
           <div class="insp-text-wrap">
-            <p class="insp-icon">💬</p>
+            <p class="insp-icon" x-text="currentInspiration ? (currentInspiration.emoji || '💬') : '💬'"></p>
             <p class="insp-text" x-text="currentInspiration ? currentInspiration.text : ''"></p>
           </div>
         </div>
@@ -563,6 +577,13 @@
           <div class="insp-form-group">
             <label class="insp-label">Kata semangat <span class="insp-req">*</span></label>
             <textarea x-model="newInspText" class="insp-textarea" placeholder="Tulis kata semangat..." maxlength="300" required></textarea>
+          </div>
+          <div class="insp-form-group">
+            <label class="insp-label">Emoji <span class="insp-opt">(opsional)</span></label>
+            <div class="insp-emoji-field">
+              <input type="text" x-model="newInspEmoji" class="insp-input insp-emoji-input" placeholder="💬" maxlength="4" />
+              <button type="button" class="cd-emoji-btn" @click="openEmojiPicker('newInspEmoji')" title="Pilih emoji">😊</button>
+            </div>
           </div>
           <div class="insp-form-group">
             <label class="insp-label">URL Gambar <span class="insp-opt">(opsional)</span></label>
@@ -831,9 +852,9 @@
   <script src="js/schedule-suggestions.js?v=1"></script>
   <script src="js/copy.js?v=1"></script>
   <script src="js/inspirations.js?v=1"></script>
-  <script src="js/moods.js?v=1"></script>
+  <script src="js/moods.js?v=2"></script>
   <script src="js/countdowns.js?v=1"></script>
-  <script src="js/emoji-picker.js?v=1"></script>
-  <script src="js/main.js?v=4"></script>
+  <script src="js/emoji-picker.js?v=2"></script>
+  <script src="js/main.js?v=5"></script>
 </body>
 </html>

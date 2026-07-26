@@ -90,6 +90,7 @@ function app() {
     emojiPickerTarget: null,
     emojiSearch: '',
     emojiActiveCategory: 'Smiley',
+    moodEmojiPickKey: null,
 
     /* --- Inspiration state --- */
     showInspirationPopup: false,
@@ -98,12 +99,15 @@ function app() {
     inspirationsList: [],
     newInspText: '',
     newInspImageUrl: '',
+    newInspEmoji: '💬',
 
     /* --- Mood Tracker state --- */
     moods: {},
     showWeeklyRecap: false,
     weeklyRecapData: null,
     weeklyRecapLoading: false,
+    showMoodCustomize: false,
+    moodCustomEmojis: {},
     MOOD_LIST: [
       { key: 'happy',    emoji: '😊',  label: 'Happy' },
       { key: 'love',     emoji: '🥰',  label: 'Love' },
@@ -119,6 +123,7 @@ function app() {
     ],
     newInspText: '',
     newInspImageUrl: '',
+    newInspEmoji: '💬',
 
     /* --- Init & Lifecycle --- */
     init() {
@@ -136,6 +141,7 @@ function app() {
       this.anniversaryDays = this.calculateAnniversary();
       this.internship = this.calculateInternshipCountdown();
       this.setGreeting();
+      this.initCustomEmojis();
       this.waitForFirebase();
 
       // Cek apakah perlu tampilkan popup inspirasi hari ini (setelah Firebase ready)

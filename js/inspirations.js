@@ -14,6 +14,7 @@ DailyApp.inspirations = {
   /* --- Form state --- */
   newInspText: '',
   newInspImageUrl: '',
+  newInspEmoji: '💬',
 
   /* --- Daily trigger init (dipanggil dari main.js init) --- */
   checkDailyInspiration() {
@@ -33,24 +34,28 @@ DailyApp.inspirations = {
     const defaults = [
       {
         text: 'Semangat hari ini! Kamu hebat dan aku bangga 🫶',
+        emoji: '💪',
         imageUrl: 'https://6a62e6126ba67c0bc5fe42c2.imgix.net/sandbox/nataaa.jpeg',
         active: true,
         createdAt: FirebaseHelpers.serverTimestamp()
       },
       {
         text: 'Jangan lupa makan dan minum ya sayang 💕',
+        emoji: '🥤',
         imageUrl: '',
         active: true,
         createdAt: FirebaseHelpers.serverTimestamp()
       },
       {
         text: 'One step at a time. Kita jalani bareng-bareng 🥰',
+        emoji: '🥰',
         imageUrl: 'https://6a62e6126ba67c0bc5fe42c2.imgix.net/sandbox/nataaa.jpeg',
         active: true,
         createdAt: FirebaseHelpers.serverTimestamp()
       },
       {
         text: 'Semua akan baik-baik saja, aku di sini untukmu 🤗',
+        emoji: '🤗',
         imageUrl: '',
         active: true,
         createdAt: FirebaseHelpers.serverTimestamp()
@@ -136,7 +141,11 @@ DailyApp.inspirations = {
         selected = pool[Math.floor(Math.random() * pool.length)];
       }
 
-      this.currentInspiration = { text: selected.text, imageUrl: selected.imageUrl || '' };
+      this.currentInspiration = {
+        text: selected.text,
+        emoji: selected.emoji || '💬',
+        imageUrl: selected.imageUrl || ''
+      };
       this.showInspirationPopup = true;
       localStorage.setItem('lastInspirationText', selected.text);
       if (callback) callback();
@@ -157,6 +166,7 @@ DailyApp.inspirations = {
   openManageInspirations() {
     this.showManageInspirations = true;
     this.newInspText = '';
+    this.newInspEmoji = '💬';
     this.newInspImageUrl = '';
     this.loadInspirations();
   },
@@ -173,6 +183,7 @@ DailyApp.inspirations = {
 
     const data = {
       text: text,
+      emoji: this.newInspEmoji || '💬',
       imageUrl: this.newInspImageUrl.trim() || '',
       active: true,
       createdAt: FirebaseHelpers.serverTimestamp()
@@ -181,6 +192,7 @@ DailyApp.inspirations = {
     FirebaseHelpers.db.collection('inspirations').add(data)
       .then(() => {
         this.newInspText = '';
+        this.newInspEmoji = '💬';
         this.newInspImageUrl = '';
         this.loadInspirations();
       })
