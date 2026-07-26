@@ -77,6 +77,14 @@ function app() {
       }
     },
 
+    /* --- Countdowns state --- */
+    countdowns: [],
+    showCountdownModal: false,
+    newCdTitle: '',
+    newCdEmoji: '🎯',
+    newCdDate: '',
+    newCdType: 'countdown',
+
     /* --- Inspiration state --- */
     showInspirationPopup: false,
     currentInspiration: null,
@@ -149,10 +157,12 @@ function app() {
       const wait = () => {
         if (window.FIREBASE_READY) {
           this.firebaseReady = true;
+          this.loadCountdowns();
           this.loadDay();
         } else {
           window.addEventListener('firebase-ready', () => {
             this.firebaseReady = true;
+            this.loadCountdowns();
             this.loadDay();
           });
         }
@@ -420,5 +430,6 @@ function app() {
     ...DailyApp.copy,
     ...DailyApp.inspirations,
     ...DailyApp.moods,
+    ...DailyApp.countdowns,
   };
 }

@@ -167,6 +167,45 @@
           📊 Lihat recap minggu ini
         </button>
       </section>
+
+      <!-- ====== COUNTDOWNS CARD ====== -->
+      <section class="card countdowns-card">
+        <div class="card-header">
+          <h2>🎯 Countdown</h2>
+          <button class="btn-countdown-manage" @click="openCountdownModal()" title="Atur countdown">✎</button>
+        </div>
+
+        <template x-if="countdowns.length === 0">
+          <div class="countdowns-empty">
+            <p>Belum ada countdown 🕊️</p>
+            <button class="btn-countdown-add-empty" @click="openCountdownModal()">+ Tambah countdown</button>
+          </div>
+        </template>
+
+        <div class="countdowns-grid" x-show="countdowns.length > 0">
+          <template x-for="cd in countdowns" :key="cd.id">
+            <div class="countdown-chip">
+              <span class="cd-emoji" x-text="cd.emoji || '🎯'"></span>
+              <div class="cd-body">
+                <span class="cd-title" x-text="cd.title"></span>
+                <span class="cd-days" x-text="calcCountdownDays(cd.targetDate, cd.type)?.label || ''"></span>
+                <span class="cd-number" x-text="calcCountdownDays(cd.targetDate, cd.type)?.days ?? '—'"></span>
+              </div>
+              <button class="cd-del" @click="deleteCountdown(cd.id)" title="Hapus">✕</button>
+            </div>
+          </template>
+
+          <button class="countdown-chip countdown-chip-add" @click="openCountdownModal()">
+            <span class="cd-emoji cd-emoji-add">+</span>
+            <div class="cd-body">
+              <span class="cd-title">Tambah</span>
+              <span class="cd-days">&nbsp;</span>
+              <span class="cd-number cd-number-add">Baru</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
       <div class="two-col">
 
         <!-- ====== LEFT: CHECKLIST ====== -->
@@ -564,6 +603,64 @@
       </div>
     </div>
 
+    <!-- ====== COUNTDOWN MANAGEMENT MODAL ====== -->
+    <div class="modal-overlay" x-show="showCountdownModal" x-cloak>
+      <div class="modal modal-sm"
+           @click.outside="closeCountdownModal()"
+           @keydown.escape="closeCountdownModal()">
+        <div class="modal-header">
+          <h2>🎯 Atur Countdown</h2>
+          <button class="modal-close" @click="closeCountdownModal()">&times;</button>
+        </div>
+
+        <form class="cd-form" @submit.prevent="addCountdown">
+          <label class="cd-label">
+            Judul
+            <input type="text" x-model="newCdTitle" class="cd-input" placeholder="Liburan, ultah, ..." maxlength="25" required />
+          </label>
+          <label class="cd-label">
+            Emoji
+            <input type="text" x-model="newCdEmoji" class="cd-input cd-emoji-input" placeholder="🎯" maxlength="4" />
+          </label>
+          <label class="cd-label">
+            Tanggal target
+            <input type="date" x-model="newCdDate" class="cd-input" required />
+          </label>
+          <label class="cd-label cd-label-inline">
+            <span>Jenis</span>
+            <select x-model="newCdType" class="cd-select">
+              <option value="countdown">⏳ Countdown (hari menuju)</option>
+              <option value="countup">📆 Countup (hari sejak)</option>
+            </select>
+          </label>
+          <button type="submit" class="btn-primary cd-submit" :disabled="!newCdTitle.trim() || !newCdDate">💾 Simpan</button>
+        </form>
+
+        <div class="cd-divider"></div>
+
+        <p class="cd-list-title">Countdown tersimpan</p>
+        <div class="cd-list" x-show="countdowns.length > 0">
+          <template x-for="cd in countdowns" :key="cd.id">
+            <div class="cd-list-item">
+              <span class="cd-list-emoji" x-text="cd.emoji || '🎯'"></span>
+              <div class="cd-list-body">
+                <span class="cd-list-title-text" x-text="cd.title"></span>
+                <span class="cd-list-meta" x-text="cd.targetDate + ' · ' + (cd.type === 'countup' ? 'Countup' : 'Countdown')"></span>
+              </div>
+              <button class="btn-del" @click="deleteCountdown(cd.id)" title="Hapus">✕</button>
+            </div>
+          </template>
+        </div>
+        <div class="empty-state" x-show="countdowns.length === 0">
+          <p>Belum ada countdown 🕊️</p>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="closeCountdownModal()">Selesai</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ====== FLOATING INSPIRATION BUTTON ====== -->
     <button class="float-insp-btn" @click="showManualInspiration()" title="Kata semangat 💬">
       💬
@@ -695,6 +792,7 @@
   <script src="js/copy.js?v=1"></script>
   <script src="js/inspirations.js?v=1"></script>
   <script src="js/moods.js?v=1"></script>
-  <script src="js/main.js?v=2"></script>
+  <script src="js/countdowns.js?v=1"></script>
+  <script src="js/main.js?v=3"></script>
 </body>
 </html>
