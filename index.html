@@ -199,7 +199,10 @@
           <!-- items -->
           <ul class="list-items">
             <template x-for="(item, idx) in checklist" :key="item.id">
-              <li class="item-row" :class="{ done: item.done }">
+              <li class="item-row" :class="{ done: item.done, priority: item.priority }">
+                <button class="btn-star" @click="togglePriority(idx)" title="Prioritas">
+                  <span x-text="item.priority ? '⭐' : '☆'"></span>
+                </button>
                 <label class="item-label">
                   <input type="checkbox" :checked="item.done" @change="toggleItem(idx)" class="item-check" />
                   <span class="check-fake"></span>

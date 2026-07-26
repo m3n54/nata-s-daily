@@ -237,7 +237,7 @@ function app() {
         console.log('SNAP EXISTS VALUE:', snap?.exists);
         if (snap && snap.exists) {
           const data = snap.data();
-          this.checklist = data.checklist || [];
+          this.checklist = this._sortChecklist(data.checklist || []);
           this.schedule = data.schedule || [];
           this.moods = data.moods || {};
           this.checkPastSchedules();
@@ -298,8 +298,8 @@ function app() {
 
         const { doc: doc2, setDoc } = window.FirebaseHelpers;
         const docRef = doc2(window.FirebaseHelpers.db, 'days', this.selectedDate);
-        const newItem = { id: Date.now(), text: displayText, done: false };
-        const updated = [...this.checklist, newItem];
+        const newItem = { id: Date.now(), text: displayText, done: false, priority: false };
+        const updated = this._sortChecklist([...this.checklist, newItem]);
         this._localUpdating = true;
         this.checklist = updated;
         setDoc(docRef, { checklist: updated }, { merge: true }).then(() => {
@@ -329,6 +329,21 @@ function app() {
       this.checkForConfetti();
     },
 
+    togglePriority(idx) {
+      const { doc, setDoc } = window.FirebaseHelpers;
+      const docRef = doc(window.FirebaseHelpers.db, 'days', this.selectedDate);
+      this._localUpdating = true;
+      this.checklist = this.checklist.map((it, i) =>
+        i === idx ? { ...it, priority: !it.priority } : it
+      );
+      this.checklist = this._sortChecklist(this.checklist);
+      setDoc(docRef, { checklist: this.checklist }, { merge: true }).then(() => {
+        this._localUpdating = false;
+      }).catch(() => {
+        this._localUpdating = false;
+      });
+    },
+
     deleteItem(idx) {
       const { doc, setDoc } = window.FirebaseHelpers;
       const docRef = doc(window.FirebaseHelpers.db, 'days', this.selectedDate);
@@ -339,6 +354,14 @@ function app() {
         this._localUpdating = false;
       }).catch(() => {
         this._localUpdating = false;
+      });
+    },
+
+    _sortChecklist(arr) {
+      return [...arr].sort((a, b) => {
+        if (a.priority && !b.priority) return -1;
+        if (!a.priority && b.priority) return 1;
+        return (a.id || 0) - (b.id || 0);
       });
     },
 

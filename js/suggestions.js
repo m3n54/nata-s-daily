@@ -57,8 +57,8 @@ DailyApp.suggestions = {
 
       const { doc: doc2, setDoc } = window.FirebaseHelpers;
       const docRef = doc2(window.FirebaseHelpers.db, 'days', this.selectedDate);
-      const newItem = { id: Date.now(), text: displayText, done: false };
-      const updated = [...this.checklist, newItem];
+      const newItem = { id: Date.now(), text: displayText, done: false, priority: false };
+      const updated = this._sortChecklist ? this._sortChecklist([...this.checklist, newItem]) : [...this.checklist, newItem];
       this._localUpdating = true;
       this.checklist = updated;
       setDoc(docRef, { checklist: updated }, { merge: true }).then(() => {

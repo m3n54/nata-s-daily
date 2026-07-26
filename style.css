@@ -822,6 +822,34 @@ body::after {
   list-style: none;
   margin-bottom: 10px;
 }
+/* Priority star button */
+.btn-star {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 2px 2px 0;
+  opacity: 0.4;
+  transition: var(--transition);
+  line-height: 1;
+  flex-shrink: 0;
+  color: #f0c040;
+}
+.btn-star:hover { opacity: 1; transform: scale(1.15); }
+.item-row.priority .btn-star { opacity: 1; }
+.item-row.priority {
+  background: #fefcf0;
+  border-left: 3px solid #f0c040;
+  border-radius: var(--radius-sm);
+}
+[data-theme="dark"] .item-row.priority {
+  background: #2a2416;
+  border-left-color: #dbb84a;
+}
+[data-theme="dark"] .btn-star {
+  color: #dbb84a;
+}
+
 .item-row {
   display: flex;
   align-items: center;
