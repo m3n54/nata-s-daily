@@ -205,6 +205,7 @@
                 <span class="cd-days" x-text="calcCountdownDays(cd.targetDate, cd.type)?.label || ''"></span>
                 <span class="cd-number" x-text="calcCountdownDays(cd.targetDate, cd.type)?.days ?? '—'"></span>
               </div>
+              <button class="cd-edit-chip" @click="openEditCountdown(cd.id)" title="Edit">✎</button>
               <button class="cd-del" @click="deleteCountdown(cd.id)" title="Hapus">✕</button>
             </div>
           </template>
@@ -663,7 +664,10 @@
               <option value="countup">📆 Countup (hari sejak)</option>
             </select>
           </label>
-          <button type="submit" class="btn-primary cd-submit" :disabled="!newCdTitle.trim() || !newCdDate">💾 Simpan</button>
+          <button type="submit" class="btn-primary cd-submit" :disabled="!newCdTitle.trim() || !newCdDate">
+            <span x-text="editingCd ? '✏️ Update' : '💾 Simpan'"></span>
+          </button>
+          <button type="button" class="btn-cancel cd-cancel-edit" x-show="editingCd" @click="closeCountdownModal()">Batal</button>
         </form>
 
         <div class="cd-divider"></div>
@@ -677,6 +681,7 @@
                 <span class="cd-list-title-text" x-text="cd.title"></span>
                 <span class="cd-list-meta" x-text="cd.targetDate + ' · ' + (cd.type === 'countup' ? 'Countup' : 'Countdown')"></span>
               </div>
+              <button class="btn-edit-sm" @click="openEditCountdown(cd.id)" title="Edit">✎</button>
               <button class="btn-del" @click="deleteCountdown(cd.id)" title="Hapus">✕</button>
             </div>
           </template>
@@ -861,6 +866,6 @@
   <script src="js/moods.js?v=2"></script>
   <script src="js/countdowns.js?v=1"></script>
   <script src="js/emoji-picker.js?v=2"></script>
-  <script src="js/main.js?v=6"></script>
+  <script src="js/main.js?v=7"></script>
 </body>
 </html>

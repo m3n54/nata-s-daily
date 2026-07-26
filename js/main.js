@@ -84,6 +84,8 @@ function app() {
     newCdEmoji: '🎯',
     newCdDate: '',
     newCdType: 'countdown',
+    editingCdId: null,
+    editingCd: false,
 
     /* --- Emoji picker state --- */
     showEmojiPicker: false,

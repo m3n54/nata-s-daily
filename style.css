@@ -870,6 +870,69 @@ body::after {
   background: #e8c080;
   transform: scale(1.1);
 }
+
+/* Edit button on countdown chip */
+.cd-edit-chip {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  background: #f0d8b0;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.6rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a6a30;
+  line-height: 1;
+  z-index: 1;
+}
+.countdown-chip:hover .cd-edit-chip {
+  opacity: 1;
+}
+.cd-edit-chip:hover {
+  background: #e8c080;
+  transform: scale(1.1);
+}
+[data-theme="dark"] .cd-edit-chip {
+  background: #4d3a28;
+  color: #dbb84a;
+}
+[data-theme="dark"] .cd-edit-chip:hover {
+  background: #6a5030;
+}
+
+/* Edit button on countdown list item */
+.btn-edit-sm {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition: var(--transition);
+  opacity: 0;
+}
+.cd-list-item:hover .btn-edit-sm {
+  opacity: 1;
+}
+.btn-edit-sm:hover {
+  color: #f0c040;
+  background: #fef8e8;
+}
+[data-theme="dark"] .btn-edit-sm:hover {
+  background: #2a2416;
+  color: #dbb84a;
+}
+.cd-cancel-edit {
+  font-size: 0.85rem;
+}
 [data-theme="dark"] .cd-del {
   background: #4d3a28;
   color: #dbb84a;

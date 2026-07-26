@@ -14,6 +14,8 @@ DailyApp.countdowns = {
   newCdEmoji: '🎯',
   newCdDate: '',
   newCdType: 'countdown',
+  editingCdId: null,
+  editingCd: false,
 
   /* --- Load countdowns dari Firestore --- */
   loadCountdowns() {
@@ -61,8 +63,10 @@ DailyApp.countdowns = {
     return { days: diffDays, label: 'hari lagi', past: false };
   },
 
-  /* --- Open modal management --- */
+  /* --- Open modal management (new) --- */
   openCountdownModal() {
+    this.editingCd = false;
+    this.editingCdId = null;
     this.newCdTitle = '';
     this.newCdEmoji = '🎯';
     this.newCdDate = '';
@@ -70,15 +74,52 @@ DailyApp.countdowns = {
     this.showCountdownModal = true;
   },
 
-  closeCountdownModal() {
-    this.showCountdownModal = false;
+  /* --- Open edit mode --- */
+  openEditCountdown(id) {
+    const cd = this.countdowns.find(c => c.id === id);
+    if (!cd) return;
+    this.editingCd = true;
+    this.editingCdId = id;
+    this.newCdTitle = cd.title;
+    this.newCdEmoji = cd.emoji || '🎯';
+    this.newCdDate = cd.targetDate;
+    this.newCdType = cd.type || 'countdown';
+    this.showCountdownModal = true;
   },
 
-  /* --- Tambah countdown baru --- */
+  closeCountdownModal() {
+    this.showCountdownModal = false;
+    this.editingCd = false;
+    this.editingCdId = null;
+  },
+
+  /* --- Tambah / Update countdown --- */
   addCountdown() {
     const title = this.newCdTitle.trim();
     if (!title || !this.newCdDate) return;
 
+    if (this.editingCd && this.editingCdId) {
+      // UPDATE existing
+      FirebaseHelpers.db.collection('countdowns').doc(this.editingCdId).update({
+        title: title,
+        emoji: this.newCdEmoji || '🎯',
+        targetDate: this.newCdDate,
+        type: this.newCdType,
+      }).then(() => {
+        this.editingCd = false;
+        this.editingCdId = null;
+        this.newCdTitle = '';
+        this.newCdEmoji = '🎯';
+        this.newCdDate = '';
+        this.newCdType = 'countdown';
+        this.loadCountdowns();
+      }).catch((err) => {
+        console.warn('Gagal update countdown:', err);
+      });
+      return;
+    }
+
+    // ADD new
     const data = {
       title: title,
       emoji: this.newCdEmoji || '🎯',
