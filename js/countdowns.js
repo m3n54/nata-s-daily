@@ -18,12 +18,17 @@ DailyApp.countdowns = {
   /* --- Load countdowns dari Firestore --- */
   loadCountdowns() {
     FirebaseHelpers.db.collection('countdowns')
-      .orderBy('createdAt', 'desc')
       .get()
       .then((snap) => {
         const items = [];
         snap.forEach((doc) => {
           items.push({ id: doc.id, ...doc.data() });
+        });
+        // Sort manual: newest first
+        items.sort((a, b) => {
+          const ta = a.createdAt ? a.createdAt.toMillis() : 0;
+          const tb = b.createdAt ? b.createdAt.toMillis() : 0;
+          return tb - ta;
         });
         this.countdowns = items;
       })
