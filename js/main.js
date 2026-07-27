@@ -94,6 +94,10 @@ function app() {
     emojiActiveCategory: 'Smiley',
     moodEmojiPickKey: null,
 
+    /* --- Anniversary Popup state --- */
+    showAnniversaryPopup: false,
+    anniversaryRange: false,
+
     /* --- Inspiration state --- */
     showInspirationPopup: false,
     currentInspiration: null,
@@ -144,6 +148,7 @@ function app() {
       this.internship = this.calculateInternshipCountdown();
       this.setGreeting();
       this.initCustomEmojis();
+      this.checkAnniversary();
       this.waitForFirebase();
 
       // Cek apakah perlu tampilkan popup inspirasi hari ini (setelah Firebase ready)
@@ -207,6 +212,65 @@ function app() {
       const now = new Date();
       const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
       return diffDays > 0 ? diffDays : null;
+    },
+
+    /* --- Anniversary 1-month popup --- */
+    checkAnniversary() {
+      const start = new Date('2026-06-28');
+      const now = new Date();
+      const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+      // Tampilkan popup pas hari ke 30 (28 Juli), 31 (29 Juli), atau 29 (27 Juli — ±1 hari buffer)
+      this.anniversaryRange = diffDays >= 29 && diffDays <= 31;
+      if (this.anniversaryRange) {
+        const shown = localStorage.getItem('anniversaryShown');
+        if (shown !== this.todayStr) {
+          // Tunggu sedikit biar render selesai, lalu tampilkan
+          setTimeout(() => {
+            this.showAnniversaryPopup = true;
+            // Kasih waktu dom render, lalu confetti
+            setTimeout(() => this.fireAnniversaryConfetti(), 300);
+          }, 800);
+        }
+      }
+    },
+
+    fireAnniversaryConfetti() {
+      try {
+        const duration = 3000;
+        const end = Date.now() + duration;
+        const frame = () => {
+          confetti({
+            particleCount: 6,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0, y: 0.7 },
+            colors: ['#f06a7a', '#7fc7b6', '#c7b4f0', '#f7e9c7', '#ffd700'],
+          });
+          confetti({
+            particleCount: 6,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1, y: 0.7 },
+            colors: ['#f06a7a', '#7fc7b6', '#c7b4f0', '#f7e9c7', '#ffd700'],
+          });
+          if (Date.now() < end) requestAnimationFrame(frame);
+        };
+        frame();
+        // Big burst at start
+        setTimeout(() => {
+          confetti({
+            particleCount: 150,
+            spread: 100,
+            origin: { y: 0.5 },
+            colors: ['#f06a7a', '#ffd700', '#c7b4f0', '#7fc7b6', '#ffffff'],
+          });
+        }, 100);
+      } catch (e) { /* confetti error harmless */ }
+    },
+
+    closeAnniversaryPopup() {
+      this.showAnniversaryPopup = false;
+      localStorage.setItem('anniversaryShown', this.todayStr);
     },
 
     calculateInternshipCountdown() {

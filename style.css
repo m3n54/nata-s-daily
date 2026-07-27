@@ -2655,3 +2655,157 @@ canvas.confetti-canvas { pointer-events: none !important; }
   .template-tab { font-size: 0.7rem; padding: 5px 2px; min-width: 40px; }
   .modal { padding: 18px 14px; }
 }
+
+/* ============================================================
+   ANNIVERSARY POPUP — 1 Bulan 🥰🌸
+   ============================================================ */
+.anniversary-modal {
+  max-width: 520px !important;
+  text-align: center;
+  padding: 30px 24px 24px !important;
+  background: linear-gradient(145deg, #fdf0ee, #fff5f0) !important;
+  border: 2px solid #f0c8c0 !important;
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="dark"] .anniversary-modal {
+  background: linear-gradient(145deg, #2a1a1c, #2f1f1a) !important;
+  border-color: #f06a7a55 !important;
+}
+
+/* --- Floating petals / flowers --- */
+.anniv-petal-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.3;
+}
+.petal {
+  position: absolute;
+  font-size: 1.4rem;
+  animation: petal-float 6s ease-in-out infinite;
+  opacity: 0.6;
+}
+.p1 { top: 5%; left: 5%; animation-delay: 0s; }
+.p2 { top: 8%; right: 8%; animation-delay: 0.8s; }
+.p3 { top: 20%; left: 2%; animation-delay: 1.6s; }
+.p4 { top: 2%; left: 45%; animation-delay: 0.4s; }
+.p5 { top: 15%; right: 3%; animation-delay: 2.4s; }
+.p6 { bottom: 15%; left: 4%; animation-delay: 3.2s; }
+.p7 { bottom: 5%; right: 5%; animation-delay: 1.2s; }
+.p8 { bottom: 20%; left: 10%; animation-delay: 4.0s; }
+.p9 { bottom: 8%; right: 12%; animation-delay: 2.0s; }
+.p10 { bottom: 25%; right: 3%; animation-delay: 0.6s; }
+.p11 { top: 30%; right: 1%; animation-delay: 2.8s; }
+.p12 { bottom: 2%; left: 45%; animation-delay: 1.8s; }
+@keyframes petal-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  50% { transform: translateY(-12px) rotate(15deg); opacity: 1; }
+}
+
+/* --- Ribbon --- */
+.anniv-ribbon {
+  display: inline-block;
+  background: linear-gradient(135deg, #f06a7a, #e8556a);
+  color: white;
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  letter-spacing: 3px;
+  padding: 8px 28px;
+  border-radius: 50px;
+  margin: 0 auto 16px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 4px 16px rgba(240, 106, 122, 0.35);
+}
+[data-theme="dark"] .anniv-ribbon {
+  box-shadow: 0 4px 16px rgba(240, 106, 122, 0.2);
+}
+
+/* --- Hearts row --- */
+.anniv-hearts {
+  font-size: 1.5rem;
+  letter-spacing: 6px;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 1;
+  animation: heart-glow 2s ease-in-out infinite;
+}
+@keyframes heart-glow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+/* --- Message --- */
+.anniv-content {
+  position: relative;
+  z-index: 1;
+}
+.anniv-message {
+  text-align: left;
+  margin-bottom: 14px;
+}
+.anniv-greeting {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  color: var(--primary);
+  text-align: center;
+  margin-bottom: 14px;
+}
+.anniv-text {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.anniv-signature {
+  text-align: center;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-top: 16px;
+  font-family: var(--font-head);
+}
+
+/* --- Button --- */
+.anniv-actions {
+  position: relative;
+  z-index: 1;
+  margin-top: 6px;
+}
+.anniv-btn {
+  font-size: 1.1rem !important;
+  padding: 12px 32px !important;
+  border-radius: 50px !important;
+  background: linear-gradient(135deg, #f06a7a, #e8556a) !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 800 !important;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: var(--font-head);
+  letter-spacing: 1px;
+  box-shadow: 0 4px 16px rgba(240, 106, 122, 0.3);
+}
+.anniv-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 24px rgba(240, 106, 122, 0.45);
+}
+.anniv-btn:active {
+  transform: scale(0.95);
+}
+[data-theme="dark"] .anniv-btn {
+  box-shadow: 0 4px 16px rgba(240, 106, 122, 0.15);
+}
+
+/* --- Footer date --- */
+.anniv-footer-text {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 10px;
+  position: relative;
+  z-index: 1;
+  font-style: italic;
+}

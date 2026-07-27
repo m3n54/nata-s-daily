@@ -46,7 +46,7 @@
   </script>
   <!-- confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
-  <link rel="stylesheet" href="style.css?v=2" />
+  <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
 
@@ -538,6 +538,63 @@
       </div>
     </div>
 
+    <!-- ====== ANNIVERSARY POPUP — 1 BULAN 🥰 ====== -->
+    <div class="modal-overlay" x-show="showAnniversaryPopup" x-cloak
+         x-transition:enter.opacity.duration.400ms
+         x-transition:leave.opacity.duration.300ms>
+      <div class="modal anniversary-modal"
+           x-transition:enter.scale.80.duration.400ms
+           x-transition:leave.scale.80.duration.300ms>
+        <div class="anniv-petal-bg">
+          <span class="petal p1">🌸</span><span class="petal p2">🌷</span>
+          <span class="petal p3">🌹</span><span class="petal p4">🌸</span>
+          <span class="petal p5">🌺</span><span class="petal p6">🌷</span>
+          <span class="petal p7">🌹</span><span class="petal p8">🌸</span>
+          <span class="petal p9">🌺</span><span class="petal p10">🌷</span>
+          <span class="petal p11">🌸</span><span class="petal p12">🌹</span>
+        </div>
+
+        <div class="anniv-ribbon">💗 1 BULAN 💗</div>
+
+        <div class="anniv-content">
+          <div class="anniv-hearts">💗 💖 🥰 💖 💗</div>
+
+          <div class="anniv-message">
+            <p class="anniv-greeting">Untuk Nataaa sayangkuu ❤️</p>
+
+            <p class="anniv-text">
+              Selamat 1 bulan anniversary kita! 🥳🥳🥳<br>
+              Siapa sangka satu bulan yang lalu kita memutuskan untuk memulai hubungan yang kita jalani dengan penuh cinta dan bahagia ini, hari ini kita sudah melewati waktu satu bulan penuh dengan penuh dengan suka maupun duka, canda dan tawa, dan bahkan kita juga berhasil melewati masa magang di awal yang berat namun tetap kita lalui bersama karena kita berdua tidak ingin menyerah, akan tetapi justru kita ingin terus dan terus hingga akhir nanti, hingga kita sampai di garis finis yang kita inginkan berdua 💪
+            </p>
+
+            <p class="anniv-text">
+              Terima kasih sudah hadir di kehidupan aku. Terima kasih untuk tiap kata semangat yang tidak pernah lelah kamu ucapkan setiap harinya, terima kasih sudah percaya dan yakin dengan semua yang sudah kita mulai, terima kasih sudah bertahan dalam setiap proses yang belum sempurna ini.❤️
+            </p>
+
+            <p class="anniv-text">
+              Aku sayang kamu, lebih dari yang bisa aku ungkapkan dengan kata-kata. Bukan hanya satu bulan ini, tetapi aku berharap juga untuk setiap bulan-bulan selanjutnya, setiap tahunnya, untuk selamanya kita bisa terus bersama menjalani kehidupan ini bersama-sama dengan penuh dengan rasa cinta yang tidak akan pernah pudar sedikitpun kepada Nataaa satu-satunya 🥰🫶💗
+            </p>
+
+            <p class="anniv-text anniv-signature">
+              Untuk Nataaa sayangkuuu, <br>
+              Dari pacarmu yang selalu bangga padamu, <br>
+              m3n54 🫶💗🥰
+            </p>
+          </div>
+
+          <div class="anniv-hearts">🫶 💗 🥰 💖 🫶</div>
+        </div>
+
+        <div class="anniv-actions">
+          <button class="btn-primary anniv-btn" @click="closeAnniversaryPopup()">
+            🥰 I Love You Too Sayang 🥰
+          </button>
+        </div>
+
+        <p class="anniv-footer-text">— 28 Juni → 28 Juli 2026 —</p>
+      </div>
+    </div>
+
     <!-- ====== INSPIRATION POPUP MODAL ====== -->
     <div class="modal-overlay" x-show="showInspirationPopup" x-cloak
          x-transition:enter.opacity.duration.300ms
@@ -866,6 +923,6 @@
   <script src="js/moods.js?v=2"></script>
   <script src="js/countdowns.js?v=1"></script>
   <script src="js/emoji-picker.js?v=2"></script>
-  <script src="js/main.js?v=7"></script>
+  <script src="js/main.js?v=8"></script>
 </body>
 </html>
