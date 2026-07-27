@@ -2661,12 +2661,18 @@ canvas.confetti-canvas { pointer-events: none !important; }
    ============================================================ */
 .anniversary-modal {
   max-width: 520px !important;
+  max-height: 90vh !important;
   text-align: center;
   padding: 30px 24px 24px !important;
   background: linear-gradient(145deg, #fdf0ee, #fff5f0) !important;
   border: 2px solid #f0c8c0 !important;
   position: relative;
   overflow: hidden;
+}
+@media (max-height: 700px) {
+  .anniversary-modal {
+    padding: 20px 16px 16px !important;
+  }
 }
 [data-theme="dark"] .anniversary-modal {
   background: linear-gradient(145deg, #2a1a1c, #2f1f1a) !important;
@@ -2741,6 +2747,20 @@ canvas.confetti-canvas { pointer-events: none !important; }
 .anniv-content {
   position: relative;
   z-index: 1;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-bottom: 4px;
+}
+.anniv-content::-webkit-scrollbar {
+  width: 4px;
+}
+.anniv-content::-webkit-scrollbar-thumb {
+  background: #f0c8c0;
+  border-radius: 4px;
+}
+[data-theme="dark"] .anniv-content::-webkit-scrollbar-thumb {
+  background: #4d3030;
 }
 .anniv-message {
   text-align: left;
