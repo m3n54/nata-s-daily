@@ -208,26 +208,25 @@ function app() {
     },
 
     calculateAnniversary() {
-      const start = new Date('2026-06-28');
       const now = new Date();
-      const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-      return diffDays > 0 ? diffDays : null;
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const start = new Date(2026, 5, 28); // 28 Juni 2026 local time
+      const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+      return diffDays >= 0 ? diffDays : null;
     },
 
     /* --- Anniversary 1-month popup --- */
     checkAnniversary() {
-      const start = new Date('2026-06-28');
       const now = new Date();
-      const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-      // Tampilkan popup pas hari ke 30 (28 Juli), 31 (29 Juli), atau 29 (27 Juli — ±1 hari buffer)
-      this.anniversaryRange = diffDays >= 30 && diffDays <= 31;
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const start = new Date(2026, 5, 28);
+      const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+      this.anniversaryRange = diffDays >= 30;
       if (this.anniversaryRange) {
         const shown = localStorage.getItem('anniversaryShown');
         if (shown !== this.todayStr) {
-          // Tunggu sedikit biar render selesai, lalu tampilkan
           setTimeout(() => {
             this.showAnniversaryPopup = true;
-            // Kasih waktu dom render, lalu confetti
             setTimeout(() => this.fireAnniversaryConfetti(), 300);
           }, 800);
         }
