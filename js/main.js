@@ -220,7 +220,7 @@ function app() {
       const now = new Date();
       const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
       // Tampilkan popup pas hari ke 30 (28 Juli), 31 (29 Juli), atau 29 (27 Juli — ±1 hari buffer)
-      this.anniversaryRange = diffDays >= 29 && diffDays <= 31;
+      this.anniversaryRange = diffDays >= 30 && diffDays <= 31;
       if (this.anniversaryRange) {
         const shown = localStorage.getItem('anniversaryShown');
         if (shown !== this.todayStr) {
