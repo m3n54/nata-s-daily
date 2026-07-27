@@ -78,6 +78,7 @@
       <div class="anniversary-badge" x-show="anniversaryDays !== null">
         <span class="heart">💗</span>
         <span x-text="anniversaryDays + ' hari bersama'"></span>
+        <button class="anniv-reopen-btn" x-show="anniversaryRange && selectedDate === todayStr" @click="openAnniversaryPopup()" title="Buka popup anniversary 🥰">🌸</button>
       </div>
 
       <!-- ====== COUNTDOWN MAGANG ====== -->

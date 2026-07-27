@@ -272,6 +272,12 @@ function app() {
       localStorage.setItem('anniversaryShown', this.todayStr);
     },
 
+    openAnniversaryPopup() {
+      this.showAnniversaryPopup = true;
+      localStorage.setItem('anniversaryShown', this.todayStr);
+      setTimeout(() => this.fireAnniversaryConfetti(), 300);
+    },
+
     calculateInternshipCountdown() {
       const start = new Date(2026, 5, 22);
       const end   = new Date(2026, 7, 14);
