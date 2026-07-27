@@ -270,18 +270,27 @@ body::after {
   box-shadow: 0 2px 8px rgba(199,180,240,0.3);
 }
 .anniv-reopen-btn {
-  background: none;
+  background: linear-gradient(135deg, #f06a7a, #e8556a);
   border: none;
-  font-size: 1rem;
+  font-size: 1.2rem;
   cursor: pointer;
-  padding: 0 2px;
+  padding: 4px 8px 4px 7px;
+  border-radius: 50px;
   transition: var(--transition);
   line-height: 1;
-  opacity: 0.7;
+  opacity: 1;
+  color: white;
+  margin-left: 2px;
+  box-shadow: 0 2px 8px rgba(240, 106, 122, 0.3);
+  animation: anniv-reopen-pulse 2s ease-in-out infinite;
 }
 .anniv-reopen-btn:hover {
-  transform: scale(1.3);
-  opacity: 1;
+  transform: scale(1.2);
+  box-shadow: 0 4px 16px rgba(240, 106, 122, 0.5);
+}
+@keyframes anniv-reopen-pulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(240, 106, 122, 0.3); }
+  50% { box-shadow: 0 2px 16px rgba(240, 106, 122, 0.6); }
 }
 .heart {
   animation: heartbeat 1.5s infinite;
