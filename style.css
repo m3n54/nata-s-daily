@@ -345,6 +345,29 @@ body::after {
 }
 .date-picker:focus { outline: none; border-color: var(--primary); }
 
+.btn-summary {
+  background: var(--card-bg);
+  border: 1.5px solid var(--accent);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-head);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-summary:hover,
+.btn-summary.active {
+  background: var(--accent);
+  color: #fff;
+}
+@media (max-width: 480px) {
+  .btn-summary-label { display: none; }
+}
+
 /* --- DAY NAV --- */
 .day-nav {
   display: flex;
