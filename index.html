@@ -46,7 +46,7 @@
   </script>
   <!-- confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
 
@@ -107,10 +107,10 @@
       <div class="header-actions">
         <button class="btn-date" x-show="todayStr !== selectedDate" @click="goToday()">⬅ Kembali ke hari ini</button>
         <input type="date" x-model="selectedDate" @change="loadDay()" class="date-picker" name="selectedDate" id="selectedDate" />
-        <button class="btn-summary" @click="openWeeklySummary()" :class="{ active: showWeeklySummary }">
-          📊 <span class="btn-summary-label">Ringkasan</span>
-        </button>
       </div>
+      <button class="btn-summary" @click="openWeeklySummary()" :class="{ active: showWeeklySummary }">
+        📊 <span class="btn-summary-label">Ringkasan</span>
+      </button>
     </header>
 
     <!-- ====== DATE NAV (prev / next day) ====== -->
