@@ -46,7 +46,7 @@
   </script>
   <!-- confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
 </head>
 <body>
 
@@ -478,14 +478,22 @@
           <template x-if="weeklyRecapData.grandTotal > 0">
             <div class="recap-content">
               <!-- Dominant mood -->
-              <div class="recap-dominant">
-                <span class="recap-dominant-label">Minggu ini kamu paling sering</span>
-                <span class="recap-dominant-mood">
-                  <span x-text="weeklyRecapData.dominant.emoji"></span>
-                  <span x-text="weeklyRecapData.dominant.label"></span>
-                </span>
-                <span class="recap-dominant-count" x-text="'(' + weeklyRecapData.dominant.count + 'x)'"></span>
-              </div>
+              <template x-if="weeklyRecapData.dominant">
+                <div class="recap-dominant">
+                  <span class="recap-dominant-label">Minggu ini kamu paling sering</span>
+                  <span class="recap-dominant-mood">
+                    <span x-text="weeklyRecapData.dominant.emoji"></span>
+                    <span x-text="weeklyRecapData.dominant.label"></span>
+                  </span>
+                  <span class="recap-dominant-count" x-text="'(' + weeklyRecapData.dominant.count + 'x)'"></span>
+                </div>
+              </template>
+              <template x-if="!weeklyRecapData.dominant && weeklyRecapData.grandTotal > 0">
+                <div class="recap-dominant">
+                  <span class="recap-dominant-label">Minggu ini kamu merasa</span>
+                  <span class="recap-dominant-mood">beragam 💫</span>
+                </div>
+              </template>
 
               <!-- Grand total -->
               <p class="recap-total">Total <strong x-text="weeklyRecapData.grandTotal + 'x'"></strong> perasaan tercatat minggu ini!</p>
@@ -940,7 +948,7 @@
   <script src="js/schedule-suggestions.js?v=1"></script>
   <script src="js/copy.js?v=1"></script>
   <script src="js/inspirations.js?v=1"></script>
-  <script src="js/moods.js?v=2"></script>
+  <script src="js/moods.js?v=3"></script>
   <script src="js/countdowns.js?v=1"></script>
   <script src="js/emoji-picker.js?v=2"></script>
   <script src="js/main.js?v=10"></script>

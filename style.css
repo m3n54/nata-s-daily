@@ -1306,6 +1306,11 @@ body::after {
 /* --- Weekly Recap Modal --- */
 .recap-modal {
   max-width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.recap-content {
+  padding: 0 4px 8px;
 }
 .recap-loading {
   text-align: center;
