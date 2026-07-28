@@ -1610,6 +1610,9 @@ body::after {
 .ws-bar-done {
   background: linear-gradient(90deg, #4caf50, #81c784);
 }
+[data-theme="dark"] .ws-bar-fill {
+  background: linear-gradient(90deg, #b8942e, #c4a850);
+}
 .ws-bar-pct {
   font-size: 0.75rem;
   font-weight: 700;
