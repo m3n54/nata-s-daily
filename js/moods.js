@@ -139,6 +139,23 @@ DailyApp.moods = {
     this.weeklyRecapData = null;
   },
 
+  /* --- Get all day data for ringkasan --- */
+  _getDayData(dateStr) {
+    const { getDoc, doc } = window.FirebaseHelpers;
+    const ref = doc(window.FirebaseHelpers.db, 'days', dateStr);
+    return getDoc(ref).then((snap) => {
+      if (snap && snap.exists) {
+        const data = snap.data();
+        return {
+          moods: data.moods || {},
+          checklist: data.checklist || [],
+          schedule: data.schedule || [],
+        };
+      }
+      return { moods: {}, checklist: [], schedule: [] };
+    }).catch(() => ({ moods: {}, checklist: [], schedule: [] }));
+  },
+
   /* --- Helper: get moods from a specific date --- */
   _getDayMoods(dateStr) {
     const { getDoc, doc } = window.FirebaseHelpers;

@@ -98,6 +98,11 @@ function app() {
     showAnniversaryPopup: false,
     anniversaryRange: false,
 
+    /* --- Weekly Summary state --- */
+    showWeeklySummary: false,
+    weeklySummaryData: null,
+    weeklySummaryLoading: false,
+
     /* --- Inspiration state --- */
     showInspirationPopup: false,
     currentInspiration: null,
@@ -479,6 +484,100 @@ function app() {
     dayNameFromIndex(idx) {
       const MAP = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
       return MAP[idx % 7];
+    },
+
+    /* --- Weekly Summary --- */
+    openWeeklySummary() {
+      this.showWeeklySummary = !this.showWeeklySummary;
+      if (!this.showWeeklySummary || this.weeklySummaryData) return;
+
+      this.weeklySummaryLoading = true;
+      this.weeklySummaryData = null;
+
+      const promises = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(this.selectedDate);
+        d.setDate(d.getDate() - i);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${day}`;
+        const dayIdx = d.getDay();
+        promises.push(
+          this._getDayData(dateStr).then((data) => ({
+            date: dateStr,
+            dayName: this.dayNameFromIndex(dayIdx),
+            ...data,
+          }))
+        );
+      }
+
+      Promise.all(promises).then((days) => {
+        days.sort((a, b) => b.date.localeCompare(a.date));
+
+        // Checklist stats
+        let totalItems = 0, totalDone = 0, dayCountWithItems = 0;
+        const checklistPerDay = days.map(day => {
+          const items = day.checklist.length;
+          const done = day.checklist.filter(i => i.done).length;
+          if (items > 0) { totalItems += items; totalDone += done; dayCountWithItems++; }
+          return {
+            dayName: day.dayName, date: day.date,
+            total: items, done, pct: items > 0 ? Math.round((done / items) * 100) : 0,
+            allDone: items > 0 && done === items,
+          };
+        });
+        const avgPct = totalItems > 0 ? Math.round((totalDone / totalItems) * 100) : 0;
+
+        // Mood aggregation
+        const moodTotals = {};
+        let moodGrandTotal = 0;
+        days.forEach(day => {
+          this.MOOD_LIST.forEach(m => {
+            const val = day.moods[m.key] || 0;
+            if (val > 0) { moodTotals[m.key] = (moodTotals[m.key] || 0) + val; moodGrandTotal += val; }
+          });
+        });
+        let dominantMood = null;
+        let maxMoodCount = 0;
+        this.MOOD_LIST.forEach(m => {
+          if ((moodTotals[m.key] || 0) > maxMoodCount) {
+            maxMoodCount = moodTotals[m.key];
+            dominantMood = { key: m.key, label: m.label, emoji: this.moodCustomEmojis[m.key] || m.emoji, count: maxMoodCount };
+          }
+        });
+
+        // Schedule stats
+        let totalScheduled = 0, totalMissed = 0;
+        days.forEach(day => {
+          totalScheduled += day.schedule.length;
+          totalMissed += day.schedule.filter(i => i.past).length;
+        });
+        const missedItems = [];
+        days.forEach(day => {
+          day.schedule.filter(i => i.past).forEach(item => {
+            missedItems.push({ time: item.time, text: item.text, dayName: day.dayName, date: day.date });
+          });
+        });
+        missedItems.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+
+        // Streak
+        let streak = 0;
+        for (const day of days) {
+          if (day.checklist.some(i => i.done)) { streak++; }
+          else { break; }
+        }
+
+        this.weeklySummaryData = {
+          days: checklistPerDay, avgPct, totalItems, totalDone, dayCountWithItems,
+          moodTotals, moodGrandTotal, dominantMood,
+          totalScheduled, totalMissed, missedItems, streak,
+          hasData: totalItems > 0 || moodGrandTotal > 0 || totalScheduled > 0,
+        };
+        this.weeklySummaryLoading = false;
+      }).catch(() => {
+        this.weeklySummaryLoading = false;
+      });
     },
 
     /* --- Template helpers (getter tetap di main) --- */
