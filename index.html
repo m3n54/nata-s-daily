@@ -46,7 +46,7 @@
   </script>
   <!-- confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body>
 
@@ -184,6 +184,111 @@
         <button class="mood-weekly-btn" @click="openWeeklyRecap()">
           📊 Lihat recap minggu ini
         </button>
+      </section>
+
+      <!-- ====== WEEKLY RINGKASAN DASHBOARD ====== -->
+      <section class="weekly-summary" x-show="showWeeklySummary" x-cloak>
+        <div class="ws-header">
+          <h2>📊 Ringkasan Mingguan</h2>
+          <span class="ws-subtitle" x-text="'7 hari terakhir'"></span>
+        </div>
+
+        <template x-if="weeklySummaryLoading">
+          <div class="ws-loading">Menghitung data... 💭</div>
+        </template>
+
+        <template x-if="!weeklySummaryLoading && weeklySummaryData">
+          <template x-if="!weeklySummaryData.hasData">
+            <div class="ws-empty">
+              <p>Belum ada data minggu ini 🕊️</p>
+              <p class="small-hint">Isi checklist, mood, dan jadwal dulu ya!</p>
+            </div>
+          </template>
+
+          <template x-if="weeklySummaryData.hasData">
+            <div class="ws-content">
+              <!-- 4 stat cards -->
+              <div class="ws-cards">
+                <div class="ws-card ws-card-checklist">
+                  <span class="ws-card-icon">✅</span>
+                  <span class="ws-card-value" x-text="weeklySummaryData.avgPct + '%'"></span>
+                  <span class="ws-card-label" x-text="weeklySummaryData.totalDone + '/' + weeklySummaryData.totalItems + ' selesai'"></span>
+                </div>
+                <div class="ws-card ws-card-mood" x-show="weeklySummaryData.dominantMood">
+                  <span class="ws-card-icon" x-text="weeklySummaryData.dominantMood?.emoji || '😊'"></span>
+                  <span class="ws-card-value" x-text="weeklySummaryData.dominantMood?.label || '—'"></span>
+                  <span class="ws-card-label" x-text="(weeklySummaryData.dominantMood?.count || 0) + 'x minggu ini'"></span>
+                </div>
+                <div class="ws-card ws-card-schedule" x-show="weeklySummaryData.totalScheduled > 0">
+                  <span class="ws-card-icon">⏰</span>
+                  <span class="ws-card-value" x-text="(weeklySummaryData.totalScheduled - weeklySummaryData.totalMissed) + '/' + weeklySummaryData.totalScheduled"></span>
+                  <span class="ws-card-label" x-text="'Tepat waktu'"></span>
+                </div>
+                <div class="ws-card ws-card-streak" x-show="weeklySummaryData.streak > 0">
+                  <span class="ws-card-icon">🔥</span>
+                  <span class="ws-card-value" x-text="weeklySummaryData.streak + ' hr'"></span>
+                  <span class="ws-card-label">Streak checklist</span>
+                </div>
+              </div>
+
+              <!-- Checklist per day bars -->
+              <div class="ws-section">
+                <p class="ws-section-title">📋 Checklist per Hari</p>
+                <template x-for="day in weeklySummaryData.days" :key="day.date">
+                  <div class="ws-bar-row" :class="{ 'ws-bar-perfect': day.allDone && day.total > 0 }">
+                    <span class="ws-bar-day" x-text="day.dayName"></span>
+                    <div class="ws-bar-track">
+                      <div class="ws-bar-fill" :style="'width:' + day.pct + '%'" :class="{ 'ws-bar-done': day.allDone && day.total > 0 }"></div>
+                    </div>
+                    <span class="ws-bar-pct" x-text="day.pct + '%'"></span>
+                    <span class="ws-bar-count" x-text="'(' + day.done + '/' + day.total + ')'"></span>
+                    <span class="ws-bar-star" x-show="day.allDone && day.total > 0">⭐</span>
+                  </div>
+                </template>
+              </div>
+
+              <!-- Mood recap section -->
+              <div class="ws-section" x-show="weeklySummaryData.moodGrandTotal > 0">
+                <p class="ws-section-title">😊 Mood</p>
+                <template x-if="weeklySummaryData.dominantMood">
+                  <div class="ws-mood-dominant">
+                    <span class="ws-mood-dom-emoji" x-text="weeklySummaryData.dominantMood.emoji"></span>
+                    <span class="ws-mood-dom-label" x-text="weeklySummaryData.dominantMood.label"></span>
+                    <span class="ws-mood-dom-count" x-text="'(' + weeklySummaryData.dominantMood.count + 'x)'"></span>
+                  </div>
+                </template>
+                <div class="ws-mood-breakdown">
+                  <template x-for="m in MOOD_LIST" :key="m.key">
+                    <template x-if="(weeklySummaryData.moodTotals[m.key] || 0) > 0">
+                      <div class="ws-mood-row">
+                        <span class="ws-mood-emoji" x-text="m.emoji"></span>
+                        <span class="ws-mood-label" x-text="m.label"></span>
+                        <div class="ws-mood-bar-track">
+                          <div class="ws-mood-bar-fill" :style="'width:' + ((weeklySummaryData.moodTotals[m.key] / weeklySummaryData.moodGrandTotal) * 100) + '%'"></div>
+                        </div>
+                        <span class="ws-mood-count" x-text="weeklySummaryData.moodTotals[m.key] + 'x'"></span>
+                      </div>
+                    </template>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Missed schedule -->
+              <div class="ws-section" x-show="weeklySummaryData.missedItems.length > 0">
+                <p class="ws-section-title">⏰ Kegiatan Terlewat</p>
+                <div class="ws-missed-list">
+                  <template x-for="item in weeklySummaryData.missedItems" :key="item.date + '|' + item.time + '|' + item.text">
+                    <div class="ws-missed-item">
+                      <span class="ws-missed-time" x-text="item.time"></span>
+                      <span class="ws-missed-text" x-text="item.text"></span>
+                      <span class="ws-missed-day" x-text="item.dayName"></span>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </template>
+        </template>
       </section>
 
       <!-- ====== COUNTDOWNS CARD ====== -->
@@ -951,9 +1056,9 @@
   <script src="js/schedule-suggestions.js?v=1"></script>
   <script src="js/copy.js?v=1"></script>
   <script src="js/inspirations.js?v=1"></script>
-  <script src="js/moods.js?v=3"></script>
+  <script src="js/moods.js?v=4"></script>
   <script src="js/countdowns.js?v=1"></script>
   <script src="js/emoji-picker.js?v=2"></script>
-  <script src="js/main.js?v=11"></script>
+  <script src="js/main.js?v=12"></script>
 </body>
 </html>
